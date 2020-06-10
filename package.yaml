@@ -27,6 +27,7 @@ dependencies:
 - transformers
 - text
 - time
+- configurator
 
 library:
   source-dirs: Lib

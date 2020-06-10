@@ -14,6 +14,13 @@ import qualified Data.Time.LocalTime as Time
 
 import Env (Env, HasLog (getLog))
 
+data Verbosity
+    = Debug
+    | Info
+    | Warning
+    | Error
+    deriving (Eq, Ord, Show)
+
 class Monad m => MonadLog m where
     pushLogMessage :: T.Text -> m ()
 
@@ -34,13 +41,6 @@ instance (Monad m, MonadIO m) => MonadLog m where
      pushLogMessage msg = do
          time <- getCurrentTime
          liftIO $ T.putStrLn $ time <> " " <> msg   
-
-data Verbosity
-    = Debug
-    | Info
-    | Warning
-    | Error
-    deriving (Eq, Ord, Show)
 
 -- pure logging function
 log :: (MonadLog m) => Verbosity -> T.Text -> m ()
