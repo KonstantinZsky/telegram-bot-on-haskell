@@ -62,5 +62,5 @@ cycle_step = do
     let bot_data = eitherDecode jsonBody
     case bot_data of
         (Right bdt) -> do
-            handleMessages bdt
+            handleMessages bdt b
         (Left err) -> liftIO $ putStrLn err
