@@ -5,6 +5,8 @@ import Logger (Verbosity (..), MonadLog, makeLoggingFunction)
 
 import Config
 
+import qualified Files as F
+
 import Prelude hiding (error)
 
 verbosityToOutput :: Verbosity
@@ -16,12 +18,10 @@ info    = makeLoggingFunction verbosityToOutput Info
 warning = makeLoggingFunction verbosityToOutput Warning
 error   = makeLoggingFunction verbosityToOutput Error
 
-handleError :: E.SomeException -> IO Config
-handleError err = (putStrLn $ "?!?! " <> show err) >> return getDefaultConfig-- >> E.throwIO err
-
 main :: IO ()
 main = do
-    cfg <- E.catch (loadConfig) handleError
+    F.checkForConfig "test.cfg"
+    cfg <- F.logFileErrors $ loadConfig "test.cfg"
     putStrLn $ show cfg
     debug "тест Debug"
     error "тест-протест error"

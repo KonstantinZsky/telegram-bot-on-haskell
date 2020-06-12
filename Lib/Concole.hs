@@ -1,4 +1,4 @@
-module ConcoleInteraction where
+module Concole where
 
 import Control.Monad.IO.Class (MonadIO, liftIO) 
 
@@ -9,6 +9,7 @@ import qualified Data.Text    as T
 
 askUser :: MonadIO m => T.Text -> m a -> m a -> m a
 askUser msg first_action second_action = do
+    liftIO $ T.putStrLn ""
     liftIO $ T.putStrLn msg
     answer <- liftIO $ getChar
     case toLower answer of

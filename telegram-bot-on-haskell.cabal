@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7f9a9ba56d41a3e07ed9ac3c6d0e2e504defe89bd4126b72962a7db59996dfee
+-- hash: 7bc26cb4d71d475b9c28729009b90c71ca0851c17a10cd7e808aa225bfb8bcdc
 
 name:           telegram-bot-on-haskell
 version:        0.1.0.0
@@ -27,9 +27,10 @@ source-repository head
 
 library
   exposed-modules:
-      ConcoleInteraction
+      Concole
       Config
       Env
+      Files
       Logger
   other-modules:
       Paths_telegram_bot_on_haskell
@@ -39,6 +40,7 @@ library
   build-depends:
       base >=4.7 && <5
     , configurator
+    , directory
     , text
     , time
     , transformers
@@ -55,6 +57,7 @@ executable telegram-bot-on-haskell-exe
   build-depends:
       base >=4.7 && <5
     , configurator
+    , directory
     , telegram-bot-on-haskell
     , text
     , time
@@ -73,6 +76,7 @@ test-suite telegram-bot-on-haskell-test
   build-depends:
       base >=4.7 && <5
     , configurator
+    , directory
     , telegram-bot-on-haskell
     , text
     , time

@@ -28,6 +28,7 @@ dependencies:
 - text
 - time
 - configurator
+- directory
 
 library:
   source-dirs: Lib
