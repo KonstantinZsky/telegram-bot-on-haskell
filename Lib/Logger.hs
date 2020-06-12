@@ -30,6 +30,7 @@ getCurrentTime = do
     let localTime = Time.zonedTimeToLocalTime time
     return $ T.pack $ show localTime
 
+-- can remove MonadIO and getCurrentTime and put it into envLog realisation
 instance (HasLog env, MonadIO m) => MonadLog (ReaderT env m) where
     pushLogMessage msg = do
         env <- ask

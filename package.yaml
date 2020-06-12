@@ -29,6 +29,10 @@ dependencies:
 - time
 - configurator
 - directory
+- lens
+- wreq
+- aeson
+- bytestring
 
 library:
   source-dirs: Lib

@@ -3,6 +3,7 @@ module Config
        , loadConfig
        , getDefaultConfig
        , writeDefaultConfig
+       , defaultConfigContents
        ) where
 
 import qualified Data.Text.IO as T

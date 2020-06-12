@@ -3,14 +3,17 @@ module Main where
 import qualified Data.Text      as T
 import qualified System.Exit    as E
 import Control.Monad (when)
-
-import Logger (Verbosity (..), MonadLog, makeLoggingFunction)
+import Control.Exception (bracket)
+import System.IO
+import Control.Monad.Trans.Reader
 
 import qualified Config as C
-
-import qualified Files as F
-
+import qualified Files  as F
+import qualified Server as S
+import qualified Env    as E
+import Logger (Verbosity (..), MonadLog, makeLoggingFunction)
 import Concole (askUser)
+import Web.Telegram.HTTP (checkTelegramConnection)
 
 import Prelude hiding (error)
 
@@ -27,11 +30,19 @@ main :: IO ()
 main = do
     F.checkForConfig "test.cfg"
     cfg <- F.logFileErrors $ C.loadConfig "test.cfg"
-    putStrLn $ show cfg -- (C.cBotToken cfg == "") 
-    -- askUser "Bot token is not specifed. You must write it in config manually. (Put any char to quit program)" (return ()) (return ())
+    putStrLn $ show cfg
     when (C.cBotToken cfg == "") $ do
         askUser "Bot token is not specifed. You must write it in config manually. (Put any char to quit program)" (return ()) (return ())
         E.exitSuccess
-    putStrLn "next step"
+    checkTelegramConnection $ C.cBotToken cfg
+    debug "next step"
+    F.checkForFile "Log file not found. Creating " "log.txt" ""
+    bracket
+        (openFile "log.txt" ReadMode)
+        (hClose)
+        (\fileHandle -> do
+            env <- S.initEnv fileHandle cfg
+            runReaderT S.runServer env
+            hClose fileHandle)
     
-
+    

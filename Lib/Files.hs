@@ -10,23 +10,25 @@ import Prelude hiding (log)
 
 import Logger (log, Verbosity(..))
 
-import Config (writeDefaultConfig)
+import Config (defaultConfigContents)
 
-checkForFile :: T.Text -> FilePath -> IO ()
-checkForFile msg path = do
+checkForFile :: T.Text -> FilePath -> T.Text -> IO ()
+checkForFile msg path content = do
     chk <- doesFileExist path
     case chk of
         True  -> return ()
         False -> do
             log Info $ msg <> T.pack path <> "."
-            logFileErrors $ writeDefaultConfig path    
+            logFileErrors $ T.writeFile "log.txt" content   
 
 checkForConfig :: FilePath -> IO ()
-checkForConfig = checkForFile "Config not found. Creating "
-
-logFileErrors :: IO a -> IO a
-logFileErrors action = do
-    E.catch action $ rethrowError "Unexpected error while working with file: "
+checkForConfig path = checkForFile "Config not found. Creating " path defaultConfigContents
 
 rethrowError ::  T.Text -> E.SomeException -> IO a
-rethrowError msg err = log Error msg >> putStrLn (show err) >> E.throwIO err
+rethrowError msg err = log Error msg >> E.throwIO err
+
+logErrors :: T.Text -> IO a -> IO a
+logErrors msg action = E.catch action $ rethrowError msg
+
+logFileErrors :: IO a -> IO a
+logFileErrors = logErrors "Unexpected error while working with file: "
