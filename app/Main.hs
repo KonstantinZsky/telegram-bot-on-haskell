@@ -38,7 +38,7 @@ main = do
     debug "next step"
     F.checkForFile "Log file not found. Creating " "log.txt" ""
     bracket
-        (openFile "log.txt" ReadMode)
+        (openFile "log.txt" WriteMode)
         (hClose)
         (\fileHandle -> do
             env <- S.initEnv fileHandle cfg

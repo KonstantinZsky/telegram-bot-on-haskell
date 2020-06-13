@@ -10,6 +10,7 @@ import Control.Monad.Trans.Reader
 import Control.Monad.IO.Class (MonadIO, liftIO) 
 import qualified Network.Wreq.Session as S
 import qualified Data.Text      as T
+import qualified Data.Text.IO   as T
 import qualified System.Exit    as E
 
 import Prelude hiding (log)
@@ -42,8 +43,11 @@ handleMessages BotData {result = []} _ = do
 handleMessages btd token = do
     let firstMsg = head $ result btd
     let upid = update_id firstMsg
-    let outTxt = text $ message firstMsg
-    let chatID = chat_id $ chat $ message firstMsg  
+    let outTxt = T.replace "#" "%23" $text $ message firstMsg
+    let chatID = chat_id $ chat $ message firstMsg 
+    log Debug $ outTxt
+    --liftIO $ T.putStrLn outTxt
+    --liftIO $ putStrLn $ T.unpack outTxt
     liftIO $ post ("https://api.telegram.org/bot" <> T.unpack token <> "/sendMessage?chat_id=" <> show chatID <> "&text=" <> T.unpack outTxt ) ("" :: B.ByteString)
     uID <- updateID <$> ask
     liftIO $ writeIORef uID $ toEnum (upid+1) 

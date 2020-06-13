@@ -38,10 +38,16 @@ instance (HasLog env, MonadIO m) => MonadLog (ReaderT env m) where
         liftIO $ getLog env $ time <> " " <> msg
 
 -- logging before we parse config and get ReaderT: output into concole
+{-
 instance (Monad m, MonadIO m) => MonadLog m where
      pushLogMessage msg = do
          time <- getCurrentTime
-         liftIO $ T.putStrLn $ time <> " " <> msg   
+         liftIO $ T.putStrLn $ time <> " " <> msg -}   
+instance MonadLog IO where
+     pushLogMessage msg = do
+         time <- getCurrentTime
+         T.putStrLn $ time <> " " <> msg
+
 
 -- pure logging function
 log :: (MonadLog m) => Verbosity -> T.Text -> m ()
