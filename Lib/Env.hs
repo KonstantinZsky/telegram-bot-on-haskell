@@ -4,6 +4,7 @@ module Env
     ( Env   (..)
     , HasLog (..)
     , HasData (..)
+    , HasMode (..)
     ) where
 
 import qualified Data.Text as T

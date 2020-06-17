@@ -21,39 +21,24 @@ import Env
 
 import Data.Aeson
 
+import qualified Web.Monad as W
+import qualified Server.Monad as S
+
 checkTelegramConnection :: T.Text -> IO ()
 checkTelegramConnection token = do
     r <- F.logErrors "Can not connect to the telegram bot. Possibly wrong token. Exiting program." $ 
         get $ "https://api.telegram.org/bot" <> T.unpack token <> "/getUpdates"
     let code = r ^. responseStatus . statusCode
     debug $ T.pack $ show $ r ^? responseBody
-    --putStrLn $ show $ r ^? header
 
-getTeleramUpdate :: T.Text -> IO B.ByteString
-getTeleramUpdate con = do
-    r <- F.logErrors "Can not connect to the telegram bot. Possibly wrong token. Exiting program." $ 
-        get $ T.unpack con
-    return $ fromMaybe "" $ r ^? responseBody
-
---post "http://httpbin.org/post"
-
-handleMessages :: BotData -> T.Text -> ReaderT Env IO ()
-handleMessages BotData {result = []} _ = do
-    uID <- updateID <$> ask
-    liftIO $ writeIORef uID (-1) 
-handleMessages btd token = do
+handleMessages :: (S.MonadServer m, W.MonadWeb m) => BotData -> m ()
+handleMessages BotData {result = []} = do
+    S.setUpdateID (-1)
+handleMessages btd = do
     let firstMsg = head $ result btd
     let upid = update_id firstMsg
-    let outTxt = text $ message firstMsg --T.replace "#" "%23" $text $ message firstMsg
+    let outTxt = text $ message firstMsg
     let chatID = chat_id $ chat $ message firstMsg 
-
-    --let dt = object ["chat_id" .= show chatID, "text" .=  T.unpack outTxt]
     let dt = object ["chat_id" .= chatID, "text" .= outTxt]
-
-    debug $ outTxt
-    --liftIO $ T.putStrLn outTxt
-    --liftIO $ putStrLn $ T.unpack outTxt
-    --liftIO $ post ("https://api.telegram.org/bot" <> T.unpack token <> "/sendMessage?chat_id=" <> show chatID <> "&text=" <> T.unpack outTxt ) ("" :: B.ByteString)
-    liftIO $ post ("https://api.telegram.org/bot" <> T.unpack token <> "/sendMessage") dt
-    uID <- updateID <$> ask
-    liftIO $ writeIORef uID $ toEnum (upid+1) 
+    W.post dt
+    S.setUpdateID $ toEnum (upid+1)
