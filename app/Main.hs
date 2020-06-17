@@ -7,24 +7,15 @@ import Control.Exception (bracket)
 import System.IO
 import Control.Monad.Trans.Reader
 
-import qualified Config as C
-import qualified Files  as F
-import qualified Server as S
-import qualified Env    as E
-import Logger (Verbosity (..), MonadLog, makeLoggingFunction)
+import qualified Config.Logic   as C
+import qualified Files          as F
+import qualified Server.Logic   as S
+import qualified Env            as E
+--import Logging.Logger (MonadLog)
 import Concole (askUser)
 import Web.Telegram.HTTP (checkTelegramConnection)
 
 import Prelude hiding (error)
-
-verbosityToOutput :: Verbosity
-verbosityToOutput = Debug
-
-debug, info, warning, error :: (MonadLog m) => T.Text -> m ()
-debug   = makeLoggingFunction verbosityToOutput Debug
-info    = makeLoggingFunction verbosityToOutput Info
-warning = makeLoggingFunction verbosityToOutput Warning
-error   = makeLoggingFunction verbosityToOutput Error
 
 main :: IO ()
 main = do
@@ -35,7 +26,6 @@ main = do
         askUser "Bot token is not specifed. You must write it in config manually. (Put any char to quit program)" (return ()) (return ())
         E.exitSuccess
     checkTelegramConnection $ C.cBotToken cfg
-    debug "next step"
     F.checkForFile "Log file not found. Creating " "log.txt" ""
     bracket
         (openFile "log.txt" WriteMode)
