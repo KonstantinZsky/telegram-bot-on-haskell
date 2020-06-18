@@ -1,10 +1,9 @@
-module Server.Logic where
+module Server where
 
 import System.IO
 import Data.IORef
 import Data.Aeson
 import Control.Monad (forever)
-import Control.Monad.Trans.Reader
 import Control.Concurrent (threadDelay)
 import Control.Monad.IO.Class (MonadIO, liftIO) 
 import qualified Data.Text.IO           as T
@@ -13,34 +12,35 @@ import qualified Data.Text.Encoding     as T
 import Prelude hiding (error)
 
 import Data.Time.Extended (getCurrentTime)
-import Web.Telegram.HTTP (handleMessages)
+import Web.Telegram.HTTP (handleMessages,checkTelegramConnection)
 import qualified Server.Monad as S
 import Web.Telegram.Parsing
-import Config.Logic
+import Config
 import qualified Env as E
-import qualified Logging.Logger as L
+import qualified Logger as L
 import Data.Time.Extended (getCurrentTime)
 import qualified Server.Monad as M 
-import qualified Web.Monad as W
+import qualified Web as W
+import Control.Exception.Extends
 
-runServer :: ReaderT E.Env IO ()
+runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, MonadError m) => m ()
 runServer = do
+    b <- S.getbotToken
+    checkTelegramConnection b
     pollTimeout <- S.getPollTimeoutMicroseconds
     forever $ do
-        liftIO $ threadDelay $ fromEnum pollTimeout
+        --liftIO $ threadDelay $ fromEnum pollTimeout
         cycle_step
 
 --cycle_step :: MonadServer m => m ()
-cycle_step :: (S.MonadServer m, W.MonadWeb m, MonadIO m) => m ()
+cycle_step :: (S.MonadServer m, W.MonadWeb m, MonadError m) => m ()
 cycle_step = do
     jsonBody <- W.get
     let bot_data = eitherDecode jsonBody
     case bot_data of
         (Right bdt) -> do
             handleMessages bdt
-        (Left err) -> liftIO $ putStrLn err ---}
-
-
+        (Left err) -> errorThrow $ T.pack err
 
 initEnv :: Handle -> Config -> IO E.Env
 initEnv handle Config   { cMode = m 

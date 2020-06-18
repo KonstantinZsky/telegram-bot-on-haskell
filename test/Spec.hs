@@ -1,10 +1,10 @@
 import qualified Data.Text as T
 import qualified Control.Exception as E
 
-import Logging.Verbosity
-import Logging.Logger (MonadLog)
+import Logger.Verbosity
+import Logger (MonadLog)
 
-import Config.Logic
+import Config
 
 import qualified Files as F
 

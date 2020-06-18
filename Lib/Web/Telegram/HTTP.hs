@@ -15,21 +15,20 @@ import qualified System.Exit    as E
 import Prelude hiding (log)
 
 import Web.Telegram.Parsing
-import Logging.Logger (debug)
+import Logger (MonadLog, debug)
 import qualified Files as F
 import Env
 
 import Data.Aeson
 
-import qualified Web.Monad as W
+import qualified Web as W
 import qualified Server.Monad as S
+import Control.Exception.Extends
 
-checkTelegramConnection :: T.Text -> IO ()
+checkTelegramConnection :: (MonadLog m, W.MonadWeb m, MonadError m) => T.Text -> m ()
 checkTelegramConnection token = do
-    r <- F.logErrors "Can not connect to the telegram bot. Possibly wrong token. Exiting program." $ 
-        get $ "https://api.telegram.org/bot" <> T.unpack token <> "/getUpdates"
-    let code = r ^. responseStatus . statusCode
-    debug $ T.pack $ show $ r ^? responseBody
+    r <- catchLogRethrow "Can not connect to the telegram bot. Possibly wrong token. Exiting program." W.get
+    debug $ T.pack $ show r
 
 handleMessages :: (S.MonadServer m, W.MonadWeb m) => BotData -> m ()
 handleMessages BotData {result = []} = do

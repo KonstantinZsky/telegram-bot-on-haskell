@@ -1,4 +1,4 @@
-module Config.Logic
+module Config
        ( Config (..)
        , loadConfig
        , defaultConfigContents
@@ -14,8 +14,8 @@ import Prelude hiding (lookup)
 
 import Config.Mode (Mode(..))
 import Config.Parsing (GreaterThanOne(..), unwrap)
-import Logging.Logger (warning, info)
-import Logging.Verbosity (Verbosity(..))
+import Logger (warning, info)
+import Logger.Verbosity (Verbosity(..))
 import Concole (askUser)
 
 -- | Data type for the configurable elements of the application.

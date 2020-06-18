@@ -1,4 +1,4 @@
-module Logging.Logger (MonadLog (debug, info, warning, error))where
+module Logger (MonadLog (debug, info, warning, error))where
 
 import Control.Monad.Trans.Reader (ReaderT(..))
 import Control.Monad (when)
@@ -8,7 +8,7 @@ import Prelude hiding (log, error)
 
 import Data.Time.Extended (getCurrentTime)
 import Env (Env, HasLog (getLog, getVerbosity))
-import Logging.Verbosity (Verbosity(..))
+import Logger.Verbosity (Verbosity(..))
 
 class Monad m => MonadLog m where
     pushLogMessage :: T.Text -> m ()

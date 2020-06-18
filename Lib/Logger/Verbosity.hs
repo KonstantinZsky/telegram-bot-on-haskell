@@ -1,4 +1,4 @@
-module Logging.Verbosity where
+module Logger.Verbosity where
 
 data Verbosity
     = Debug

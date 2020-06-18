@@ -11,7 +11,7 @@ import qualified Data.Text as T
 import Data.IORef
 import Prelude hiding (error)
 
-import Logging.Verbosity
+import Logger.Verbosity
 import Config.Mode (Mode(..))
 
 data Env = Env 
@@ -59,6 +59,7 @@ class Monad m => HasMode env m where
 
 instance HasMode Env IO where
     getMode                     = return . mode
+
 
 
 

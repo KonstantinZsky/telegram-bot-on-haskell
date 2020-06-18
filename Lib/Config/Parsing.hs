@@ -4,7 +4,7 @@ import qualified Data.Text as T
 import Data.Configurator.Types
 import Data.Configurator
 
-import Logging.Verbosity (Verbosity(..))
+import Logger.Verbosity (Verbosity(..))
 import Config.Mode (Mode(..))
 
 instance Configured Verbosity where

@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Web.Monad where
+module Web where
 
 import Control.Monad.Trans.Reader (ReaderT(..))
 import Data.ByteString.Lazy (ByteString)
