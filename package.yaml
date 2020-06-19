@@ -33,6 +33,7 @@ dependencies:
 - wreq
 - http-client
 - aeson
+- aeson-qq
 - bytestring
 
 library:

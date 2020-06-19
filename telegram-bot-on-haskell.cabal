@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e7f3957f8014282020c83c1a162afa7f68842240494ef1289a2ab7f210d84240
+-- hash: b5600333c56f6c88a2db721cfff16f1e22d8411d79a89c17a3e99d84acb900ea
 
 name:           telegram-bot-on-haskell
 version:        0.1.0.0
@@ -31,8 +31,10 @@ library
       Config
       Config.Mode
       Config.Parsing
+      Control.Exception.Extends
       Data.Time.Extended
       Env
+      Env.Init
       Files
       Logger
       Logger.Verbosity
@@ -48,6 +50,7 @@ library
   default-extensions: OverloadedStrings
   build-depends:
       aeson
+    , aeson-qq
     , base >=4.7 && <5
     , bytestring
     , configurator
@@ -70,6 +73,7 @@ executable telegram-bot-on-haskell-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-qq
     , base >=4.7 && <5
     , bytestring
     , configurator
@@ -94,6 +98,7 @@ test-suite telegram-bot-on-haskell-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-qq
     , base >=4.7 && <5
     , bytestring
     , configurator

@@ -4,19 +4,15 @@ import qualified Data.Text      as T
 import qualified System.Exit    as E
 import Control.Monad (when)
 import Control.Exception (bracket)
-import System.IO
+import System.IO (openFile, hClose, IOMode(WriteMode))
 import Control.Monad.Trans.Reader
 
-import qualified Config         as C
 import qualified Files          as F
+import qualified Config         as C
+import qualified Env.Init       as E
 import qualified Server         as S
-import qualified Env            as E
---import Logging.Logger (MonadLog)
 import Concole (askUser)
-import Web.Telegram.HTTP (checkTelegramConnection)
-import Control.Exception.Extends
-
-import Prelude hiding (error)
+import Control.Exception.Extends (catchLogRethrow)
 
 main :: IO ()
 main = do
@@ -31,7 +27,7 @@ main = do
         (openFile "log.txt" WriteMode)
         (hClose)
         (\fileHandle -> do
-            env <- S.initEnv fileHandle cfg
+            env <- E.initEnv fileHandle cfg
             runReaderT S.runServer env
             hClose fileHandle)
     

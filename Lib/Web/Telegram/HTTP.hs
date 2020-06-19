@@ -1,3 +1,5 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Web.Telegram.HTTP where
 
 import Data.IORef
@@ -20,6 +22,7 @@ import qualified Files as F
 import Env
 
 import Data.Aeson
+import Data.Aeson.QQ
 
 import qualified Web as W
 import qualified Server.Monad as S
@@ -37,7 +40,15 @@ handleMessages btd = do
     let firstMsg = head $ result btd
     let upid = update_id firstMsg
     let outTxt = text $ message firstMsg
-    let chatID = chat_id $ chat $ message firstMsg 
-    let dt = object ["chat_id" .= chatID, "text" .= outTxt]
+    let chatID = chat_id $ chat $ message firstMsg
+    hlpMsg <- S.getHelpMessage
+    askRepeatMsg <- S.getRepeateQuestion
+    let john = [aesonQQ| {age: 23, name: "John", likes: ["linux", "Haskell"]} |] ::Value
+    let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: "1"},{text: "2", callback_data: "2"},{text: "3", callback_data: "3"},{text: "4", callback_data: "4"},{text: "5", callback_data: "5"}]]}  |] :: Value
+    let dt = case outTxt of 
+            "/help"     -> object ["chat_id" .= chatID, "text" .= hlpMsg]
+            "/repeat"   -> object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
+            _           -> object ["chat_id" .= chatID, "text" .= outTxt]
     W.post dt
     S.setUpdateID $ toEnum (upid+1)
+m
