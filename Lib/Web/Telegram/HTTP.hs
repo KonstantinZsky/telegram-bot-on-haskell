@@ -51,4 +51,3 @@ handleMessages btd = do
             _           -> object ["chat_id" .= chatID, "text" .= outTxt]
     W.post dt
     S.setUpdateID $ toEnum (upid+1)
-m
