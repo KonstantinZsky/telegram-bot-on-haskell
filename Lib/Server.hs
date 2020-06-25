@@ -20,14 +20,23 @@ runServer = do
         S.timeout $ fromEnum pollTimeout
         cycle_step
 
-cycle_step :: (S.MonadServer m, W.MonadWeb m, E.MonadError m) => m ()
+cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m) => m ()
 cycle_step = do
     jsonBody <- W.get
     let bot_data = eitherDecode jsonBody
+    upid <- S.getUpdateID
+    --L.debug $ "Step, upid: " <> (T.pack $ show upid)
     case bot_data of
         (Right bdt) -> do
             handleMessages bdt -- bdt will not be :: BotData for VK, need to think it out
-        (Left err) -> E.errorThrow $ T.pack err
+        (Left err) -> do
+            L.warning $ "Unsupported telegram message: " <> T.pack err
+            --upid2 <- S.getUpdateID
+            --L.info $ "Unsupported message, upid: " <> (T.pack $ show upid2)
+            --L.debug $ "Unsupported message, upid: " <> (T.pack $ show upid2)
+            --L.error $ "Unsupported message, upid: " <> (T.pack $ show upid2)
+            S.setUpdateID $ upid + 1
+            --E.errorThrow $ T.pack err
 
 
       

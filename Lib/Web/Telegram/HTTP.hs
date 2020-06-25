@@ -33,6 +33,7 @@ checkTelegramConnection token = do
     r <- catchLogRethrow "Can not connect to the telegram bot. Possibly wrong token. Exiting program." W.get
     debug $ T.pack $ show r
 
+{-
 handleMessages :: (S.MonadServer m, W.MonadWeb m) => BotData -> m ()
 handleMessages BotData {result = []} = do
     S.setUpdateID (-1)
@@ -43,11 +44,11 @@ handleMessages btd = do
     let chatID = chat_id $ chat $ message firstMsg
     hlpMsg <- S.getHelpMessage
     askRepeatMsg <- S.getRepeateQuestion
-    let john = [aesonQQ| {age: 23, name: "John", likes: ["linux", "Haskell"]} |] ::Value
+    --let john = [aesonQQ| {age: 23, name: "John", likes: ["linux", "Haskell"]} |] ::Value
     let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: "1"},{text: "2", callback_data: "2"},{text: "3", callback_data: "3"},{text: "4", callback_data: "4"},{text: "5", callback_data: "5"}]]}  |] :: Value
     let dt = case outTxt of 
             "/help"     -> object ["chat_id" .= chatID, "text" .= hlpMsg]
             "/repeat"   -> object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
             _           -> object ["chat_id" .= chatID, "text" .= outTxt]
     W.post dt
-    S.setUpdateID $ toEnum (upid+1)
+    S.setUpdateID $ toEnum (upid+1) -}

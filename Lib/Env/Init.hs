@@ -4,6 +4,7 @@ import qualified Data.IORef     as IORef
 import qualified System.IO      as System
 import qualified Data.Text.IO   as T
 import qualified Network.Wreq.Session as Sess
+import System.IO (hFlush)
 
 import qualified Config as C
 import qualified Env    as E   
@@ -26,7 +27,7 @@ initEnv handle C.Config { C.cMode = m
                     , E.envLog                    =
                         -- may be change error to warning? 
                         \str -> getCurrentTime >>= \t -> catchLogRethrow "Error while writing a log file. Exiting program. "
-                                                                (T.hPutStrLn handle $ t <> " " <> str)
+                                                               $ T.hPutStrLn handle (t <> " " <> str) >> hFlush handle
                     , E.verbosity                 = v
                     , E.updateID                  = uID
                     , E.repeatCount               = rc_ref

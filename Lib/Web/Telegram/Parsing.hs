@@ -1,51 +1,30 @@
-{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Web.Telegram.Parsing where
 
-import GHC.Generics
 import Data.Aeson
-import Data.Text (Text, unpack)
+import Data.Text (Text, pack, unpack)
+import Data.Foldable (asum)
 
-data BotData = BotData { ok :: Bool, result :: [BotMessage]} deriving (Show, Generic, FromJSON)
+import Web.Types
 
-data BotMessage = BotMessage { update_id :: Int, message :: MessageData} deriving (Show, Generic, FromJSON)
+instance FromJSON TelegramBotData
 
-data MessageData = MessageData  { message_id :: Int
-                                , from :: TelegramUser
-                                , chat :: ChatData
-                                , date :: Int
-                                , text :: Text} deriving Show
-
-instance FromJSON MessageData where
-    parseJSON (Object v) =
-        MessageData <$> v .: "message_id"
-                    <*> v .: "from"
-                    <*> v .: "chat"
-                    <*> v .:? "date" .!= 0
-                    <*> v .:? "text" .!= ""
-
-data TelegramUser = TelegramUser    { user_id :: Int
-                                    , is_bot :: Bool
-                                    , first_name :: Text
-                                    , username :: Text
-                                    , language_code :: Text } deriving Show
-
-instance FromJSON TelegramUser where
-    parseJSON (Object v) =
-        TelegramUser <$> v .:? "id" .!= 0
-                     <*> v .:? "is_bot" .!= False
-                     <*> v .:? "first_name" .!= ""
-                     <*> v .:? "username" .!= ""
-                     <*> v .:? "language_code" .!= ""      
-
-data ChatData = ChatData    { chat_id :: Int
-                            , first_name_chat :: Text
-                            , username_chat :: Text
-                            , chat_type :: Text } deriving Show
-
-instance FromJSON ChatData where
-    parseJSON (Object v) =
-        ChatData <$> v .: "id"
-                 <*> v .:? "first_name" .!= ""
-                 <*> v .:? "username" .!= ""
-                 <*> v .:? "type" .!= ""
+instance FromJSON TelegramBotMessage where
+    parseJSON = withObject "message" $ \o -> do
+        asum[ do
+            message <- o .: "message"
+            chat <- message .: "chat"
+            chid <- chat .: "id" 
+            message_txt <- message .: "text" 
+            upid <- o .: "update_id"
+            return TelegramBotMessage {messageType = MessageText message_txt, chat_id = chid, update_id = upid},
+            do
+            cbq <- o .: "callback_query"
+            message <- cbq .: "message"
+            chat <- message .: "chat"
+            chid <- chat .: "id" 
+            callback_data <- cbq .: "data" 
+            upid <- o .: "update_id"
+            return TelegramBotMessage {messageType = Callback callback_data, chat_id = chid, update_id = upid},
+            return $ UnknownMessage $ pack $ show o]

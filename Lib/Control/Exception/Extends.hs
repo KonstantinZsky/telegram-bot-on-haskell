@@ -12,7 +12,7 @@ import Env
 
 class Monad m => MonadError m where 
     catchLogRethrow     :: T.Text -> m a -> m a
-    errorThrow          :: T.Text -> m ()
+    errorThrow          :: T.Text -> m a
 
 instance MonadError (ReaderT Env IO) where -- logging with error text 
     catchLogRethrow msg action = ReaderT $ \r -> E.catch (runReaderT action r) (\err -> runReaderT (errorHandler err msg) r)
