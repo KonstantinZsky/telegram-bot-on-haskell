@@ -5,10 +5,11 @@ import Control.Monad (forever)
 import Control.Concurrent (threadDelay)
 import qualified Data.Text as T
 
-import Web.Telegram.HTTP (handleMessages, checkTelegramConnection)
+import Web.Telegram.HTTP (checkTelegramConnection)
 import qualified Server.Monad   as S
 import qualified Logger         as L
 import qualified Web            as W
+import qualified Web.Parsing    as P
 import qualified Control.Exception.Extends as E
 
 runServer :: (S.MonadServer m, S.MonadTimeout m, W.MonadWeb m, L.MonadLog m, E.MonadError m) => m ()
@@ -23,6 +24,8 @@ runServer = do
 cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m) => m ()
 cycle_step = do
     jsonBody <- W.get
+    botData <- P.parseInput jsonBody
+{-
     let bot_data = eitherDecode jsonBody
     upid <- S.getUpdateID
     --L.debug $ "Step, upid: " <> (T.pack $ show upid)
@@ -36,7 +39,7 @@ cycle_step = do
             --L.debug $ "Unsupported message, upid: " <> (T.pack $ show upid2)
             --L.error $ "Unsupported message, upid: " <> (T.pack $ show upid2)
             S.setUpdateID $ upid + 1
-            --E.errorThrow $ T.pack err
+            --E.errorThrow $ T.pack err -}
 
 
       

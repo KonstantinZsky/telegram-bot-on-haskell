@@ -3,4 +3,5 @@
 .history/
 config.cfg
 test.cfg
+log.txt
 *~
