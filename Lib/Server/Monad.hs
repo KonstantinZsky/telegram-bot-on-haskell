@@ -7,6 +7,7 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Concurrent (threadDelay)
 
 import qualified Env as E
+import qualified Web.Types as W
 
 class Monad m => MonadServer m where
     getUpdateID                 :: m Integer
@@ -36,3 +37,14 @@ instance (MonadIO m, Monad m) => MonadTimeout (ReaderT env m) where
 
 instance Monad m => MonadTimeout (StateT env m) where -- used for testing
     timeout s = return ()
+
+-- for packing output messagies
+class Monad m => MonadSortingHashTable m where
+    emptyHashTable :: m ()
+    alter :: W.SupportData -> ((Maybe W.AnswerType -> Maybe W.AnswerType) -> m ())
+    toList :: m [(W.SupportData, W.AnswerType)]       
+
+instance E.HasSortingHashTable env m => MonadSortingHashTable (ReaderT env m) where
+    emptyHashTable = ReaderT E.emptyHashTable
+    alter k f = ReaderT $ \env -> E.alter env k f
+    toList = ReaderT E.toList

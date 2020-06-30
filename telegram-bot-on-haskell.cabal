@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a37d55eedfff6e7aef415e4712fd8e5377d252ab40eb140765a1f0a27eeebbbd
+-- hash: b4247c9b20a926d9a426cf8d4bcf55232e4a8833d0aaa7585bc0072eab3649a1
 
 name:           telegram-bot-on-haskell
 version:        0.1.0.0
@@ -58,6 +58,8 @@ library
     , bytestring
     , configurator
     , directory
+    , hashable
+    , hashtables
     , http-client
     , lens
     , text
@@ -81,6 +83,8 @@ executable telegram-bot-on-haskell-exe
     , bytestring
     , configurator
     , directory
+    , hashable
+    , hashtables
     , http-client
     , lens
     , telegram-bot-on-haskell
@@ -106,6 +110,8 @@ test-suite telegram-bot-on-haskell-test
     , bytestring
     , configurator
     , directory
+    , hashable
+    , hashtables
     , http-client
     , lens
     , telegram-bot-on-haskell

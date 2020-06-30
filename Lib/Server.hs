@@ -25,6 +25,7 @@ cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m) => m
 cycle_step = do
     jsonBody <- W.get
     botData <- P.parseInput jsonBody
+    undefined
 {-
     let bot_data = eitherDecode jsonBody
     upid <- S.getUpdateID

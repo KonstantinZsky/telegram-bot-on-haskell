@@ -35,6 +35,8 @@ dependencies:
 - aeson
 - aeson-qq
 - bytestring
+- hashtables
+- hashable
 
 library:
   source-dirs: Lib

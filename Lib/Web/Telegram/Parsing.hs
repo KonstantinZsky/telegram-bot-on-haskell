@@ -11,15 +11,15 @@ import Web.Types
 instance FromJSON TelegramBotData
 
 instance FromJSON TelegramBotMessage where
-    parseJSON = withObject "message" $ \o -> do
-        asum[ do
+    parseJSON = withObject "message" $ \o ->
+        asum[   do
             message <- o .: "message"
             chat <- message .: "chat"
             chid <- chat .: "id" 
             message_txt <- message .: "text" 
             upid <- o .: "update_id"
             return TelegramBotMessage {messageType = MessageText message_txt, chat_id = chid, update_id = upid},
-            do
+                do
             cbq <- o .: "callback_query"
             message <- cbq .: "message"
             chat <- message .: "chat"
