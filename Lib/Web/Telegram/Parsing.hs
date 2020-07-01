@@ -24,7 +24,9 @@ instance FromJSON TelegramBotMessage where
             message <- cbq .: "message"
             chat <- message .: "chat"
             chid <- chat .: "id" 
-            callback_data <- cbq .: "data" 
+            callback_data_raw <- cbq .: "data" 
+            let callback_data = read callback_data_raw
+            --callback_data <- cbq .: "data"
             upid <- o .: "update_id"
             return TelegramBotMessage {messageType = Callback callback_data, chat_id = chid, update_id = upid},
             return $ UnknownMessage $ pack $ show o]

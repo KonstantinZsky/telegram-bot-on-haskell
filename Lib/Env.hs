@@ -10,6 +10,7 @@ module Env
 
 import qualified Data.Text as T
 import Data.IORef
+import System.CPUTime (getCPUTime)
 import Prelude hiding (error)
 import qualified Network.Wreq.Session as Sess
 import qualified Data.HashTable.IO as H
@@ -27,10 +28,12 @@ data Env = Env
     , verbosity                 :: !Verbosity
     , updateID                  :: !(IORef Integer)
     , repeatCount               :: !(IORef Integer)
+    , cpuTimestamp              :: !(IORef Integer)
     , helpMessage               :: !T.Text
     , repeateQuestion           :: !T.Text
     , botToken                  :: !T.Text  
     , pollTimeoutMicroseconds   :: !Integer
+    , maximumMessageFrequency   :: !Integer
     , sortingHashTable          :: !(HashTable W.SupportData W.AnswerType)
     }
 
@@ -44,23 +47,31 @@ instance HasLog Env IO where
 
 class Monad m => HasData env m where
     getUpdateID                 :: env -> m Integer
-    setUpdateID                 :: env -> (Integer -> m ())
+    setUpdateID                 :: env -> Integer -> m ()
     getRepeatCount              :: env -> m Integer
-    setRepeatCount              :: env -> (Integer -> m ())
+    setRepeatCount              :: env -> Integer -> m ()
+    getCpuTimestamp             :: env -> m Integer
+    setCpuTimestamp             :: env -> m ()
     getHelpMessage              :: env -> m T.Text
     getRepeateQuestion          :: env -> m T.Text
     getBotToken                 :: env -> m T.Text
     getPollTimeoutMicroseconds  :: env -> m Integer
+    getMaximumMessageFrequency  :: env -> m Integer
 
 instance HasData Env IO where
     getUpdateID                 = readIORef . updateID
     setUpdateID                 = writeIORef . updateID
     getRepeatCount              = readIORef . repeatCount
     setRepeatCount              = writeIORef . repeatCount
+    getCpuTimestamp             = readIORef . cpuTimestamp
+    setCpuTimestamp env         = do
+        t <- getCPUTime
+        writeIORef (cpuTimestamp env) t   
     getHelpMessage              = return . helpMessage 
     getRepeateQuestion          = return . repeateQuestion
     getBotToken                 = return . botToken
     getPollTimeoutMicroseconds  = return . pollTimeoutMicroseconds
+    getMaximumMessageFrequency  = return . maximumMessageFrequency
 
 class Monad m => HasMode env m where 
     getMode             :: env -> m Mode
@@ -72,7 +83,7 @@ instance HasMode Env IO where
 
 class Monad m => HasSortingHashTable env m where
     emptyHashTable :: env -> m ()
-    alter :: env -> W.SupportData -> ((Maybe W.AnswerType -> Maybe W.AnswerType) -> m ())
+    alter :: env -> W.SupportData -> (Maybe W.AnswerType -> Maybe W.AnswerType) -> m ()
     toList :: env -> m [(W.SupportData, W.AnswerType)]    
 
 instance HasSortingHashTable Env IO where

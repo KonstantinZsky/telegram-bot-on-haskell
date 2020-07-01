@@ -1,11 +1,4 @@
-2020-06-21 05:16:31.0040573 Debug: "{\"ok\":true,\"result\":[]}"
-2020-06-21 05:16:36.0496004 Debug: Step, upid: -1
-2020-06-21 05:16:41.0917388 Debug: Step, upid: -1
-2020-06-21 05:16:46.2095675 Debug: Step, upid: 273312304
-2020-06-21 05:16:46.2095675 Warning: Unsupported telegram message: Error in $.result[0]: parsing Web.Telegram.Parsing.BotMessage(BotMessage) failed, key "message" not found
-2020-06-21 05:16:46.2095675 Info: Unsupported message, upid: 273312304
-2020-06-21 05:16:46.2095675 Debug: Unsupported message, upid: 273312304
-2020-06-21 05:16:46.2095675 Error: Unsupported message, upid: 273312304
-2020-06-21 05:16:51.2521641 Debug: Step, upid: 273312305
-2020-06-21 05:16:56.2938719 Debug: Step, upid: -1
-2020-06-21 05:17:01.3390788 Debug: Step, upid: -1
+2020-07-01 10:24:19.3899093 Debug: "{\"ok\":true,\"result\":[]}"
+2020-07-01 10:25:00.1871311 Debug: Repeat count changed: 5. packOutput 1
+2020-07-01 10:25:15.4884274 Warning: Unknown format of telegram message, will be ignored: fromList [("update_id",Number 2.73312489e8),("edited_message",Object (fromList [("edit_date",Number 1.593588311e9),("entities",Array [Object (fromList [("length",Number 7.0),("offset",Number 0.0),("type",String "bot_command")])]),("text",String "/repeat"),("from",Object (fromList [("first_name",String "MetalPony"),("username",String "KonstantinZsky"),("is_bot",Bool False),("id",Number 4.47114018e8),("language_code",String "ru")])),("chat",Object (fromList [("first_name",String "MetalPony"),("username",String "KonstantinZsky"),("id",Number 4.47114018e8),("type",String "private")])),("message_id",Number 572.0),("date",Number 1.593588306e9)]))]
+2020-07-01 10:25:20.5265981 Warning: Unknown format of telegram message, will be ignored: fromList [("update_id",Number 2.73312489e8),("edited_message",Object (fromList [("edit_date",Number 1.593588311e9),("entities",Array [Object (fromList [("length",Number 7.0),("offset",Number 0.0),("type",String "bot_command")])]),("text",String "/repeat"),("from",Object (fromList [("first_name",String "MetalPony"),("username",String "KonstantinZsky"),("is_bot",Bool False),("id",Number 4.47114018e8),("language_code",String "ru")])),("chat",Object (fromList [("first_name",String "MetalPony"),("username",String "KonstantinZsky"),("id",Number 4.47114018e8),("type",String "private")])),("message_id",Number 572.0),("date",Number 1.593588306e9)]))]

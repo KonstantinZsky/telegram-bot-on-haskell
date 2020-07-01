@@ -24,8 +24,9 @@ import Env
 import Data.Aeson
 import Data.Aeson.QQ
 
-import qualified Web as W
-import qualified Server.Monad as S
+import qualified Web            as W
+import qualified Web.Types      as W
+import qualified Server.Monad   as S
 import Control.Exception.Extends
 
 checkTelegramConnection :: (MonadLog m, W.MonadWeb m, MonadError m) => T.Text -> m ()
@@ -33,22 +34,17 @@ checkTelegramConnection token = do
     r <- catchLogRethrow "Can not connect to the telegram bot. Possibly wrong token. Exiting program." W.get
     debug $ T.pack $ show r
 
-{-
-handleMessages :: (S.MonadServer m, W.MonadWeb m) => BotData -> m ()
-handleMessages BotData {result = []} = do
-    S.setUpdateID (-1)
-handleMessages btd = do
-    let firstMsg = head $ result btd
-    let upid = update_id firstMsg
-    let outTxt = text $ message firstMsg
-    let chatID = chat_id $ chat $ message firstMsg
-    hlpMsg <- S.getHelpMessage
+
+handleMessage :: (S.MonadServer m, W.MonadWeb m) => (W.SupportData, W.AnswerType) -> m ()
+handleMessage (sd, at) = do
     askRepeatMsg <- S.getRepeateQuestion
-    --let john = [aesonQQ| {age: 23, name: "John", likes: ["linux", "Haskell"]} |] ::Value
-    let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: "1"},{text: "2", callback_data: "2"},{text: "3", callback_data: "3"},{text: "4", callback_data: "4"},{text: "5", callback_data: "5"}]]}  |] :: Value
-    let dt = case outTxt of 
-            "/help"     -> object ["chat_id" .= chatID, "text" .= hlpMsg]
-            "/repeat"   -> object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
-            _           -> object ["chat_id" .= chatID, "text" .= outTxt]
-    W.post dt
-    S.setUpdateID $ toEnum (upid+1) -}
+    let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: 1},{text: "2", callback_data: 2},{text: "3", callback_data: 3},{text: "4", callback_data: 4},{text: "5", callback_data: 5}]]}  |] :: Value
+    let dt = case sd of 
+            (W.TelegramSupportData chatID)    -> case at of
+                (W.AnswerText outTxt)   -> object ["chat_id" .= chatID, "text" .= outTxt]
+                (W.AnswerInfo outTxt)   -> object ["chat_id" .= chatID, "text" .= outTxt]
+                (W.AnswerButtons)       -> object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
+                (W.SetRepeatCount _)    -> undefined -- error, must change types to avoid this situation           
+            W.VKSupportData                   -> undefined -- not implemented yet
+    W.post dt -- ignoring social network answer for now
+    return ()

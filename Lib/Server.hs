@@ -6,42 +6,44 @@ import Control.Concurrent (threadDelay)
 import qualified Data.Text as T
 
 import Web.Telegram.HTTP (checkTelegramConnection)
+import Data.Time.Extended (cpuToMicro)
 import qualified Server.Monad   as S
 import qualified Logger         as L
 import qualified Web            as W
+import qualified Web.Types      as W
 import qualified Web.Parsing    as P
 import qualified Control.Exception.Extends as E
 
-runServer :: (S.MonadServer m, S.MonadTimeout m, W.MonadWeb m, L.MonadLog m, E.MonadError m) => m ()
+runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadSortingHashTable m, S.MonadTime m) => m ()
 runServer = do
     b <- S.getBotToken
     checkTelegramConnection b
     pollTimeout <- S.getPollTimeoutMicroseconds
     forever $ do
-        S.timeout $ fromEnum pollTimeout
+        timeStamp <- S.getCpuTimestamp
+        cTime <- S.getCpuTime
+        let timeToSleep = fromEnum pollTimeout - cpuToMicro (cTime - timeStamp)
+        if (timeToSleep > 0)    then S.timeout timeToSleep
+                                else L.warning $ "Poll timeout (" <> (T.pack $ show $ pollTimeout) <> 
+                                    " microseconds) was exceeded. Actual timeout was: " <> 
+                                    (T.pack $ show $ cpuToMicro (cTime - timeStamp)) <> 
+                                    " microseconds. Too many messages."
+        S.setCpuTimestamp
         cycle_step
 
-cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m) => m ()
+cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadSortingHashTable m, S.MonadTime m) => m ()
 cycle_step = do
     jsonBody <- W.get
     botData <- P.parseInput jsonBody
-    undefined
-{-
-    let bot_data = eitherDecode jsonBody
-    upid <- S.getUpdateID
-    --L.debug $ "Step, upid: " <> (T.pack $ show upid)
-    case bot_data of
-        (Right bdt) -> do
-            handleMessages bdt -- bdt will not be :: BotData for VK, need to think it out
-        (Left err) -> do
-            L.warning $ "Unsupported telegram message: " <> T.pack err
-            --upid2 <- S.getUpdateID
-            --L.info $ "Unsupported message, upid: " <> (T.pack $ show upid2)
-            --L.debug $ "Unsupported message, upid: " <> (T.pack $ show upid2)
-            --L.error $ "Unsupported message, upid: " <> (T.pack $ show upid2)
-            S.setUpdateID $ upid + 1
-            --E.errorThrow $ T.pack err -}
-
+    helpMsg <- S.getHelpMessage
+    let messageHandling mType = case mType of
+            (W.MessageText "/help")     -> W.AnswerInfo helpMsg
+            (W.MessageText "/repeat")   -> W.AnswerButtons
+            (W.Callback x)              -> W.SetRepeatCount x
+            (W.MessageText txt)         -> W.AnswerText txt
+    forPacking <- P.prepareOutput botData messageHandling
+    P.packOutput forPacking
+    P.sendMessages
 
       
 

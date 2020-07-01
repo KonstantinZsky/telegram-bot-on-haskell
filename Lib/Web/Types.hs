@@ -20,7 +20,7 @@ data TelegramBotMessage = TelegramBotMessage { messageType :: MessageType, chat_
 
 -- Output data
 
-data AnswerType = AnswerText Text | AnswerButtons | SetRepeatCount Integer
+data AnswerType = AnswerText Text | AnswerInfo Text | AnswerButtons | SetRepeatCount Integer
                                     -- chat_id
 data SupportData = TelegramSupportData Integer | VKSupportData deriving (Show, Eq, Generic)-- VK not implemented yet
 

@@ -26,6 +26,7 @@ data Config = Config
     , cRepeatQuestion           :: !T.Text
     , cRepeatCount              :: !Integer
     , cPollTimeoutMicroseconds  :: !Integer
+    , cMaximumMessageFrequency  :: !Integer    
     , cBotToken                 :: !T.Text
     } deriving Show
 
@@ -45,10 +46,12 @@ loadConfig path = do
     when (isNothing rc) $ warning "Reading config: field cRepeatCount missing or wrong value"
     p <- lookup rawCfg "cPollTimeoutMicroseconds" :: IO (Maybe GreaterThanOne)
     when (isNothing p) $ warning "Reading config: field cPollTimeoutMicroseconds missing or wrong value"
+    f <- lookup rawCfg "cMaximumMessageFrequency" :: IO (Maybe GreaterThanOne)
+    when (isNothing f) $ warning "Reading config: field cMaximumMessageFrequency missing or wrong value"      
     b <- lookup rawCfg "cBotToken" :: IO (Maybe T.Text)
-    when (isNothing b) $ warning "Reading config: field cBotToken missing or wrong value"    
-    let cfg = getConfig m v h rq (unwrap rc) (unwrap p) b
-    when (isNothing (m>>v>>h>>rq>>rc>>p>>b) ) 
+    when (isNothing b) $ warning "Reading config: field cBotToken missing or wrong value"   
+    let cfg = getConfig m v h rq (unwrap rc) (unwrap p) (unwrap f) b
+    when (isNothing (m>>v>>h>>rq>>rc>>p>>f>>b) ) 
         (askUser "Do you want to rewrite missing fields of the config with default values? (Y/y) (Any other letter for reject)\n" 
             (T.writeFile path (configContents cfg) >> info "Config renewed")
             (warning "Misssing fields in config"))
@@ -61,6 +64,7 @@ configContents Config   { cMode = m
                         , cRepeatQuestion = rq
                         , cRepeatCount = rc
                         , cPollTimeoutMicroseconds  = p
+                        , cMaximumMessageFrequency = f
                         , cBotToken = b} = 
     "# Mode - social network to connect to: \"TG\" for telegram, \"VK\" for vkontakte. Must be in quotes.\n" <>
     "cMode = \""                    <> (T.pack $ show m) <> "\" \n\n" <>
@@ -72,27 +76,31 @@ configContents Config   { cMode = m
     "# Question that will be shown after command /repeat. Must be in quotes. \n" <>
     "cRepeatQuestion = \""          <> rq <> "\" \n\n" <>
     "# Number of duplication for bot response. \n" <>
-    "# Must be greater then 1. \n"  <>
+    "# Must be greater than 1. \n"  <>
     "cRepeatCount = "               <> (T.pack $ show rc) <> " \n\n" <>
     "# Long polling timeout microseconds, 1s = 1000000. \n" <>
-    "# Must be greater then 1. \n"  <>
+    "# Must be greater than 1. \n"  <>
     "cPollTimeoutMicroseconds = "   <> (T.pack $ show p) <> " \n\n" <>
+    "# Maximum message output per second. For current date (30.06.2020) it is 30 for Telegram. \n" <>
+    "# Must be greater than 1. \n"  <>
+    "cMaximumMessageFrequency = "   <> (T.pack $ show f) <> " \n\n" <>   
     "# Bot token for qonnection to the API. Must be in quotes. \n" <>
     "cBotToken = \""                <> b <> "\" \n"
 
 getConfig :: Maybe Mode -> Maybe Verbosity -> Maybe T.Text -> Maybe T.Text 
-                -> Maybe Integer -> Maybe Integer -> Maybe T.Text -> Config
-getConfig m v h rq rc p b = Config
+                -> Maybe Integer -> Maybe Integer -> Maybe Integer -> Maybe T.Text -> Config
+getConfig m v h rq rc p f b = Config
     { cMode                     = fromMaybe TG m
     , cLogVerbosity             = fromMaybe Debug v
     , cHelpMessage              = fromMaybe "Echo bot, returns messages back to the user." h
     , cRepeatQuestion           = fromMaybe "Choose the number of bot response duplication." rq
     , cRepeatCount              = fromMaybe 1 rc
     , cPollTimeoutMicroseconds  = fromMaybe 5000000 p
+    , cMaximumMessageFrequency  = fromMaybe 20 f
     , cBotToken                 = fromMaybe "" b}
 
 getDefaultConfig :: Config
-getDefaultConfig = getConfig Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+getDefaultConfig = getConfig Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 defaultConfigContents :: T.Text
 defaultConfigContents = configContents getDefaultConfig

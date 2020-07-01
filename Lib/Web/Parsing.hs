@@ -2,16 +2,19 @@ module Web.Parsing where
 
 import Data.ByteString.Lazy (ByteString)
 import Data.Aeson (eitherDecode)
-import Control.Monad (guard)
+import Control.Monad (guard, when)
 import qualified Data.Text as T
 
+import Data.Time.Extended (secondsToCPU, cpuToMicro)
 import Web.Telegram.Parsing
 import Config.Mode (Mode(..))
+import qualified Web.Telegram.HTTP (handleMessage)
 import qualified Web.Types      as W
 import qualified Web            as W
 import qualified Logger         as L
 import qualified Server.Monad   as S
 import qualified Control.Exception.Extends as E
+
 
 parseInput :: (Monad m, W.MonadWeb m, E.MonadError m) => ByteString -> m W.BotData
 parseInput input = do
@@ -30,7 +33,7 @@ parseInput input = do
 
 -- data MessageType = MessageText Text | Callback Int
 prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m) => W.BotData -> 
-                        [(W.MessageType, W.AnswerType)] -> m [W.BotAnswer]
+                        (W.MessageType -> W.AnswerType) -> m [W.BotAnswer]
 prepareOutput (W.VkBotData) _ = undefined -- not implemented yet
 prepareOutput (W.BotData (W.TelegramBotData {W.ok = False, W.result = result})) _ = 
     E.errorThrow $ "Telegram response - not ok, message: " <> (T.pack $ show result)
@@ -39,32 +42,52 @@ prepareOutput (W.BotData (W.TelegramBotData {W.result = result})) processing = d
     let warnings = [ x | x@(W.UnknownMessage _) <- result ]
         upids = [ update_id | (W.TelegramBotMessage {W.update_id = update_id}) <- result ]
         answers = do
-            W.TelegramBotMessage {W.messageType = messageType, W.chat_id = chat_id, W.update_id = update_id} <- result
-            (m,a) <- processing
-            guard (m == messageType)
-            return $ W.BotAnswer a $ W.TelegramSupportData chat_id
+            W.TelegramBotMessage {W.messageType = messageType, W.chat_id = chat_id} <- result
+            return $ W.BotAnswer (processing messageType) $ W.TelegramSupportData chat_id
     mapM_ (\(W.UnknownMessage txt) -> L.warning $ "Unknown format of telegram message, will be ignored: " <> txt) warnings
-    S.setUpdateID $ 1 + maximum upids
+    when (upids /= []) $ S.setUpdateID $ 1 + maximum upids
     return answers
-
 
 -- temporary here, will be moved
 packOutput :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadSortingHashTable m) => [W.BotAnswer] -> m ()
 packOutput answers = mapM_ (func) answers where
     func (W.BotAnswer ansT supD) = case ansT of
-        (W.SetRepeatCount x) -> S.setRepeatCount x
+        (W.SetRepeatCount x) -> do 
+            S.setRepeatCount x 
+            L.debug $ "Repeat count changed: " <> (T.pack $ show x) <> ". packOutput 1"
         (W.AnswerText txt) -> do 
             rc <- S.getRepeatCount
             rc_correct <- if rc < 1 then do
                     L.warning $ "Wrong repeatCount: " <> (T.pack $ show rc) <> ". Must be > 0, will be set to 1."
                     S.setRepeatCount 1
+                    L.debug $ "Repeat count changed: " <> (T.pack $ show 1) <> ". packOutput 2"
                     return 1 
                 else return rc 
             S.alter supD (\ansOld -> case ansOld of
                 (Just (W.AnswerText txtOld)) -> Just $ W.AnswerText $ txtOld <> (T.replicate (fromEnum rc_correct) $ txt <> "\n")
+                _       -> Just $ W.AnswerText $ T.replicate (fromEnum rc_correct) (txt <> "\n"))
+        (W.AnswerInfo txt) -> S.alter supD (\ansOld -> case ansOld of
+                (Just (W.AnswerText txtOld)) -> Just $ W.AnswerText $ txtOld <> txt <> "\n"
                 _       -> Just $ W.AnswerText $ txt <> "\n")
         (W.AnswerButtons) -> S.alter supD $ \_ -> Just W.AnswerButtons
 
+sendMessages :: (Monad m, S.MonadServer m, S.MonadSortingHashTable m, S.MonadTime m, W.MonadWeb m) => m ()
+sendMessages = do
+    packedMessages <- S.toList
+    cpuTime <- S.getCpuTime
+    sendMessagesCycle packedMessages $ cpuTime - secondsToCPU 1
+    S.emptyHashTable
+    return ()
 
-
+sendMessagesCycle :: (Monad m, S.MonadServer m, S.MonadTime m, W.MonadWeb m) => 
+                        [(W.SupportData, W.AnswerType)] -> Integer -> m ()
+sendMessagesCycle [] _ = return ()
+sendMessagesCycle xs tStamp = do
+    cpuTime <- S.getCpuTime
+    let timeToSleep = secondsToCPU 1 - (cpuTime - tStamp)
+    when (timeToSleep > 0) $ S.timeout $ cpuToMicro timeToSleep 
+    freq <- S.getMaximumMessageFrequency
+    let (now, next) = splitAt (fromEnum freq) xs
+    mapM_ Web.Telegram.HTTP.handleMessage now
+    sendMessagesCycle next cpuTime
 
