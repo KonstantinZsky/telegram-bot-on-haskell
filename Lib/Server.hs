@@ -36,6 +36,7 @@ cycle_step = do
     jsonBody <- W.get
     botData <- P.parseInput jsonBody
     helpMsg <- S.getHelpMessage
+    --L.debug $ T.pack $ show botData
     let messageHandling mType = case mType of
             (W.MessageText "/help")     -> W.AnswerInfo helpMsg
             (W.MessageText "/repeat")   -> W.AnswerButtons

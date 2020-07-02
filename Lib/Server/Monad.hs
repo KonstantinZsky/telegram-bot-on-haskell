@@ -51,8 +51,8 @@ instance Monad m => MonadTime (StateT env m) where -- used for testing
 -- for packing output messagies
 class Monad m => MonadSortingHashTable m where
     emptyHashTable :: m ()
-    alter :: W.SupportData -> ((Maybe W.AnswerType -> Maybe W.AnswerType) -> m ())
-    toList :: m [(W.SupportData, W.AnswerType)]       
+    alter :: W.HashMapKey -> ((Maybe W.HashMapData -> Maybe W.HashMapData) -> m ())
+    toList :: m [(W.HashMapKey, W.HashMapData)]       
 
 instance E.HasSortingHashTable env m => MonadSortingHashTable (ReaderT env m) where
     emptyHashTable = ReaderT E.emptyHashTable

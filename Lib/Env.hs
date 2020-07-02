@@ -34,7 +34,7 @@ data Env = Env
     , botToken                  :: !T.Text  
     , pollTimeoutMicroseconds   :: !Integer
     , maximumMessageFrequency   :: !Integer
-    , sortingHashTable          :: !(HashTable W.SupportData W.AnswerType)
+    , sortingHashTable          :: !(HashTable W.HashMapKey W.HashMapData)
     }
 
 class Monad m => HasLog env m where 
@@ -83,8 +83,8 @@ instance HasMode Env IO where
 
 class Monad m => HasSortingHashTable env m where
     emptyHashTable :: env -> m ()
-    alter :: env -> W.SupportData -> (Maybe W.AnswerType -> Maybe W.AnswerType) -> m ()
-    toList :: env -> m [(W.SupportData, W.AnswerType)]    
+    alter :: env -> W.HashMapKey -> (Maybe W.HashMapData -> Maybe W.HashMapData) -> m ()
+    toList :: env -> m [(W.HashMapKey, W.HashMapData)]    
 
 instance HasSortingHashTable Env IO where
     emptyHashTable = (\h -> (H.toList h) >>= (mapM_ $ \(k,_) -> H.delete h k)) . sortingHashTable

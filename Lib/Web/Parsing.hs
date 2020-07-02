@@ -46,6 +46,7 @@ prepareOutput (W.BotData (W.TelegramBotData {W.result = result})) processing = d
             return $ W.BotAnswer (processing messageType) $ W.TelegramSupportData chat_id
     mapM_ (\(W.UnknownMessage txt) -> L.warning $ "Unknown format of telegram message, will be ignored: " <> txt) warnings
     when (upids /= []) $ S.setUpdateID $ 1 + maximum upids
+    L.debug $ T.pack $ show answers
     return answers
 
 -- temporary here, will be moved
@@ -56,31 +57,35 @@ packOutput answers = mapM_ (func) answers where
             S.setRepeatCount x 
             L.debug $ "Repeat count changed: " <> (T.pack $ show x) <> ". packOutput 1"
         (W.AnswerText txt) -> do 
+            --L.debug $ "packOutput AnswerText txt: " <> (T.pack $ show txt)
             rc <- S.getRepeatCount
             rc_correct <- if rc < 1 then do
                     L.warning $ "Wrong repeatCount: " <> (T.pack $ show rc) <> ". Must be > 0, will be set to 1."
                     S.setRepeatCount 1
-                    L.debug $ "Repeat count changed: " <> (T.pack $ show 1) <> ". packOutput 2"
+                    --L.debug $ "Repeat count changed: " <> (T.pack $ show 1) <> ". packOutput 2"
                     return 1 
                 else return rc 
-            S.alter supD (\ansOld -> case ansOld of
-                (Just (W.AnswerText txtOld)) -> Just $ W.AnswerText $ txtOld <> (T.replicate (fromEnum rc_correct) $ txt <> "\n")
-                _       -> Just $ W.AnswerText $ T.replicate (fromEnum rc_correct) (txt <> "\n"))
-        (W.AnswerInfo txt) -> S.alter supD (\ansOld -> case ansOld of
-                (Just (W.AnswerText txtOld)) -> Just $ W.AnswerText $ txtOld <> txt <> "\n"
-                _       -> Just $ W.AnswerText $ txt <> "\n")
-        (W.AnswerButtons) -> S.alter supD $ \_ -> Just W.AnswerButtons
+            S.alter (W.Key supD W.FlagText) (\ansOld -> case ansOld of
+                (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> (T.replicate (fromEnum rc_correct) $ txt <> "\n")
+                _       -> Just $ W.DataText $ T.replicate (fromEnum rc_correct) (txt <> "\n"))
+        (W.AnswerInfo txt) -> S.alter (W.Key supD W.FlagText) (\ansOld -> case ansOld of
+                (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> txt <> "\n"
+                _       -> Just $ W.DataText $ txt <> "\n")
+        (W.AnswerButtons) -> do
+            --L.debug $ "packOutput AnswerButtons supD: " <> (T.pack $ show supD)
+            S.alter (W.Key supD W.FlagButtons) $ \_ -> Just W.Empty
 
-sendMessages :: (Monad m, S.MonadServer m, S.MonadSortingHashTable m, S.MonadTime m, W.MonadWeb m) => m ()
+sendMessages :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadSortingHashTable m, S.MonadTime m, W.MonadWeb m) => m ()
 sendMessages = do
     packedMessages <- S.toList
+    --L.debug $ T.pack $ show packedMessages
     cpuTime <- S.getCpuTime
     sendMessagesCycle packedMessages $ cpuTime - secondsToCPU 1
     S.emptyHashTable
     return ()
 
 sendMessagesCycle :: (Monad m, S.MonadServer m, S.MonadTime m, W.MonadWeb m) => 
-                        [(W.SupportData, W.AnswerType)] -> Integer -> m ()
+                        [(W.HashMapKey, W.HashMapData)] -> Integer -> m ()
 sendMessagesCycle [] _ = return ()
 sendMessagesCycle xs tStamp = do
     cpuTime <- S.getCpuTime
