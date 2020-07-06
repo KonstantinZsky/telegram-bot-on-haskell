@@ -8,15 +8,16 @@ import qualified Data.Text.IO as T
 import qualified Data.Text    as T
 import Control.Monad (when)
 import Data.Maybe (fromMaybe, isNothing)
-import Data.Configurator (lookup, load)
-import Data.Configurator.Types (Value, Configured, Worth(Required), convert)
-import Prelude hiding (lookup)
+import qualified Data.Configurator as C
+import qualified Data.Configurator.Types as C
+import qualified Control.Exception as E
 
 import Config.Mode (Mode(..))
 import Config.Parsing (GreaterThanOne(..), unwrap)
-import Logger (warning, info)
+import Logger (warning, info, debug)
 import Logger.Verbosity (Verbosity(..))
 import Concole (askUser)
+
 
 -- | Data type for the configurable elements of the application.
 data Config = Config
@@ -33,22 +34,22 @@ data Config = Config
 -- can throw exceptions when writing files
 loadConfig :: FilePath -> IO Config
 loadConfig path = do
-    rawCfg <- load [Required path]
-    m <- lookup rawCfg "cMode" :: IO (Maybe Mode)
+    rawCfg <- C.load [C.Required path]
+    m <- C.lookup  rawCfg "cMode" :: IO (Maybe Mode)
     when (isNothing m) $ warning "Reading config: field cMode missing or wrong value"    
-    v <- lookup rawCfg "cLogVerbosity" :: IO (Maybe Verbosity)
+    v <- C.lookup  rawCfg "cLogVerbosity" :: IO (Maybe Verbosity)
     when (isNothing v) $ warning "Reading config: field cLogVerbosity missing or wrong value"
-    h <- lookup rawCfg "cHelpMessage" :: IO (Maybe T.Text)
+    h <- C.lookup  rawCfg "cHelpMessage" :: IO (Maybe T.Text)
     when (isNothing h) $ warning "Reading config: field cHelpMessage missing or wrong value"
-    rq <- lookup rawCfg "cRepeatQuestion" :: IO (Maybe T.Text)
+    rq <- C.lookup  rawCfg "cRepeatQuestion" :: IO (Maybe T.Text)
     when (isNothing rq) $ warning "Reading config: field cRepeatQuestion missing or wrong value"
-    rc <- lookup rawCfg "cRepeatCount" :: IO (Maybe GreaterThanOne)
+    rc <- C.lookup  rawCfg "cRepeatCount" :: IO (Maybe GreaterThanOne)
     when (isNothing rc) $ warning "Reading config: field cRepeatCount missing or wrong value"
-    p <- lookup rawCfg "cPollTimeoutMicroseconds" :: IO (Maybe GreaterThanOne)
+    p <- C.lookup  rawCfg "cPollTimeoutMicroseconds" :: IO (Maybe GreaterThanOne)
     when (isNothing p) $ warning "Reading config: field cPollTimeoutMicroseconds missing or wrong value"
-    f <- lookup rawCfg "cMaximumMessageFrequency" :: IO (Maybe GreaterThanOne)
+    f <- C.lookup  rawCfg "cMaximumMessageFrequency" :: IO (Maybe GreaterThanOne)
     when (isNothing f) $ warning "Reading config: field cMaximumMessageFrequency missing or wrong value"      
-    b <- lookup rawCfg "cBotToken" :: IO (Maybe T.Text)
+    b <- C.lookup  rawCfg "cBotToken" :: IO (Maybe T.Text)
     when (isNothing b) $ warning "Reading config: field cBotToken missing or wrong value"   
     let cfg = getConfig m v h rq (unwrap rc) (unwrap p) (unwrap f) b
     when (isNothing (m>>v>>h>>rq>>rc>>p>>f>>b) ) 
