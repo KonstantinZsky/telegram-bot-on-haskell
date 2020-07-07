@@ -1,91 +1,78 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Web.Parsing where
 
 import Data.ByteString.Lazy (ByteString)
+import Data.Hashable (Hashable)
 import Data.Aeson (eitherDecode)
 import Control.Monad (guard, when)
 import qualified Data.Text as T
 
 import Data.Time.Extended (secondsToCPU, cpuToMicro)
 import Web.Telegram.Parsing
-import Config.Mode (Mode(..))
-import qualified Web.Telegram.HTTP (handleMessage)
 import qualified Web.Types      as W
 import qualified Web            as W
 import qualified Logger         as L
 import qualified Server.Monad   as S
 import qualified Control.Exception.Extends as E
 
-
-parseInput :: (Monad m, W.MonadWeb m, E.MonadError m) => ByteString -> m W.BotData
-parseInput input = do
-    mode <- W.getMode  
-    let bot_data = case mode of
-                        TG -> (eitherDecode input :: Either String W.TelegramBotData)
-                        VK -> undefined -- not implemented yet
+parseInput :: (Monad m, W.MonadWeb m, E.MonadError m, W.InputBotData m a) => ByteString -> m a
+parseInput input = do 
+    bot_data <- W.decode input
     case bot_data of
         (Left err)  -> E.errorThrow $ "Impossible parsing error while processing bot answer: " <> (T.pack $ show err)   
-        (Right btd) -> return $ W.BotData btd
+        (Right btd) -> return btd        
 
--- data BotData = BotData TelegramBotData | VkBotData 
--- data TelegramBotData = TelegramBotData { ok :: Bool, result :: [TelegramBotMessage]} deriving (Show, Generic)
--- data TelegramBotMessage = TelegramBotMessage { messageType :: MessageType, chat_id :: Integer, update_id :: Integer } |
---                    UnknownMessage Text
-
--- data MessageType = MessageText Text | Callback Int
-prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m) => W.BotData -> 
-                        (W.MessageType -> W.AnswerType) -> m [W.BotAnswer]
-prepareOutput (W.VkBotData) _ = undefined -- not implemented yet
-prepareOutput (W.BotData (W.TelegramBotData {W.ok = False, W.result = result})) _ = 
-    E.errorThrow $ "Telegram response - not ok, message: " <> (T.pack $ show result)
-prepareOutput (W.BotData (W.TelegramBotData {W.result = []})) _ = return []
-prepareOutput (W.BotData (W.TelegramBotData {W.result = result})) processing = do
-    let warnings = [ x | x@(W.UnknownMessage _) <- result ]
-        upids = [ update_id | (W.TelegramBotMessage {W.update_id = update_id}) <- result ]
-        answers = do
-            W.TelegramBotMessage {W.messageType = messageType, W.chat_id = chat_id} <- result
-            return $ W.BotAnswer (processing messageType) $ W.TelegramSupportData chat_id
-    mapM_ (\(W.UnknownMessage txt) -> L.warning $ "Unknown format of telegram message, will be ignored: " <> txt) warnings
+prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m, W.InputBotData m a, Hashable b, Show b) =>
+                        a -> (W.MessageType -> W.AnswerType) -> m [W.BotAnswer b]
+prepareOutput botD processing = do
+    (status, errMsg) <- W.messageStatus botD
+    when status $ E.errorThrow errMsg
+    --checkEmpty <- W.messageEmpty botD -- may be not needed ????
+    --if checkEmpty then (return []) else do
+    (warnings, upids, answersRaw) <- W.messageData botD
+    let answers = [W.BotAnswer (processing mesD) $ supD | W.BotMessage mesD supD <- answersRaw]
+    mapM_ (\txt -> L.warning txt) warnings
     when (upids /= []) $ S.setUpdateID $ 1 + maximum upids
     L.debug $ T.pack $ show answers
     return answers
 
--- temporary here, will be moved
-packOutput :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadSortingHashTable m) => [W.BotAnswer] -> m ()
-packOutput answers = mapM_ (func) answers where
-    func (W.BotAnswer ansT supD) = case ansT of
-        (W.SetRepeatCount x) -> do 
-            S.setRepeatCount x 
-            L.debug $ "Repeat count changed: " <> (T.pack $ show x) <> ". packOutput 1"
-        (W.AnswerText txt) -> do 
-            --L.debug $ "packOutput AnswerText txt: " <> (T.pack $ show txt)
-            rc <- S.getRepeatCount
-            rc_correct <- if rc < 1 then do
-                    L.warning $ "Wrong repeatCount: " <> (T.pack $ show rc) <> ". Must be > 0, will be set to 1."
-                    S.setRepeatCount 1
-                    --L.debug $ "Repeat count changed: " <> (T.pack $ show 1) <> ". packOutput 2"
-                    return 1 
-                else return rc 
-            S.alter (W.Key supD W.FlagText) (\ansOld -> case ansOld of
-                (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> (T.replicate (fromEnum rc_correct) $ txt <> "\n")
-                _       -> Just $ W.DataText $ T.replicate (fromEnum rc_correct) (txt <> "\n"))
-        (W.AnswerInfo txt) -> S.alter (W.Key supD W.FlagText) (\ansOld -> case ansOld of
-                (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> txt <> "\n"
-                _       -> Just $ W.DataText $ txt <> "\n")
-        (W.AnswerButtons) -> do
-            --L.debug $ "packOutput AnswerButtons supD: " <> (T.pack $ show supD)
-            S.alter (W.Key supD W.FlagButtons) $ \_ -> Just W.Empty
+packOutput :: (Monad m, L.MonadLog m, S.MonadServer m, W.InputBotData m a, W.SortingHashMap m h b, Hashable b) => 
+                    [W.BotAnswer b] -> m [(W.HashMapKey b, W.HashMapData)]
+packOutput answers = do
+    hashMap <- W.createHashMap
+    let func = \(W.BotAnswer ansT supD) -> do
+        case ansT of
+            (W.SetRepeatCount x) -> do 
+                S.setRepeatCount x 
+                L.debug $ "Repeat count changed: " <> (T.pack $ show x) <> ". packOutput 1"
+            (W.AnswerText txt) -> do 
+                rc <- S.getRepeatCount
+                rc_correct <- if rc < 1 then do
+                        L.warning $ "Wrong repeatCount: " <> (T.pack $ show rc) <> ". Must be > 0, will be set to 1."
+                        S.setRepeatCount 1
+                        return 1 
+                    else return rc 
+                W.alter hashMap (W.Key supD W.FlagText) (\ansOld -> case ansOld of
+                    (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> (T.replicate (fromEnum rc_correct) $ txt <> "\n")
+                    _       -> Just $ W.DataText $ T.replicate (fromEnum rc_correct) (txt <> "\n"))
+            (W.AnswerInfo txt) -> W.alter hashMap (W.Key supD W.FlagText) (\ansOld -> case ansOld of
+                    (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> txt <> "\n"
+                    _       -> Just $ W.DataText $ txt <> "\n")
+            (W.AnswerButtons) -> do
+                W.alter hashMap (W.Key supD W.FlagButtons) $ \_ -> Just W.Empty
+    mapM_ (func) answers
+    W.toList hashMap
 
-sendMessages :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadSortingHashTable m, S.MonadTime m, W.MonadWeb m) => m ()
-sendMessages = do
-    packedMessages <- S.toList
-    --L.debug $ T.pack $ show packedMessages
+sendMessages :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadTime m, W.MonadWeb m, W.OutputBotData m b) => 
+                    [(W.HashMapKey b, W.HashMapData)] -> m ()
+sendMessages packedMessages = do
     cpuTime <- S.getCpuTime
     sendMessagesCycle packedMessages $ cpuTime - secondsToCPU 1
-    S.emptyHashTable
     return ()
 
-sendMessagesCycle :: (Monad m, S.MonadServer m, S.MonadTime m, W.MonadWeb m) => 
-                        [(W.HashMapKey, W.HashMapData)] -> Integer -> m ()
+sendMessagesCycle :: (Monad m, S.MonadServer m, S.MonadTime m, W.MonadWeb m, W.OutputBotData m b) => 
+                        [(W.HashMapKey b, W.HashMapData)] -> Integer -> m ()
 sendMessagesCycle [] _ = return ()
 sendMessagesCycle xs tStamp = do
     cpuTime <- S.getCpuTime
@@ -93,6 +80,6 @@ sendMessagesCycle xs tStamp = do
     when (timeToSleep > 0) $ S.timeout $ cpuToMicro timeToSleep 
     freq <- S.getMaximumMessageFrequency
     let (now, next) = splitAt (fromEnum freq) xs
-    mapM_ Web.Telegram.HTTP.handleMessage now
+    mapM_ W.handleMessage now
     sendMessagesCycle next cpuTime
 

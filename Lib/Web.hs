@@ -1,7 +1,14 @@
-{-# LANGUAGE FlexibleInstances #-}
+--{-# LANGUAGE FlexibleInstances #-}
 
-module Web (MonadWeb (getMode,get,post)) where
+module Web  ( MonadWeb(..)
+            , InputBotData(..)
+            , SortingHashMap(..)
+            , OutputBotData(..)) where
 
+import Web.Telegram.Instances
+import Web.Classes
+
+{-
 import Control.Monad.Trans.Reader (ReaderT(..))
 import Data.ByteString.Lazy (ByteString)
 import Network.HTTP.Client (Response)
@@ -22,8 +29,8 @@ class Monad m => MonadWeb m where
     getSession              :: m Sess.Session
     get                     :: m ByteString
     post                    :: Value -> m (Response ByteString)
- 
-instance MonadWeb (ReaderT E.Env IO) where
+
+instance MonadWeb (ReaderT (E.Env a) IO) where
     getSession = ReaderT E.getSession
     getMode = ReaderT E.getMode
     get = do
@@ -44,4 +51,4 @@ instance MonadWeb (ReaderT E.Env IO) where
                         TG -> "https://api.telegram.org/bot" <> b <> "/sendMessage"
                         VK -> undefined -- not implemented yet
         s <- getSession
-        liftIO $ Sess.post s conStr json
+        liftIO $ Sess.post s conStr json -}

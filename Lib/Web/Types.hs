@@ -7,35 +7,47 @@ import Data.Aeson
 import Data.Text (Text)
 import Data.Hashable (Hashable)
 
--- Input data
+-- Telegram types
 
-data BotData = BotData TelegramBotData | VkBotData deriving Show-- VK not implemented yet
+data Telegram
+                  
+type Chat_id = Integer                  
 
-data TelegramBotData = TelegramBotData { ok :: Bool, result :: [TelegramBotMessage]} deriving (Show, Generic)
+data TelegramSupportData = TelegramSupportData Chat_id deriving (Show, Eq, Generic) -- SupportData
 
+instance Hashable TelegramSupportData where
+
+data TelegramBotData = TelegramBotData { ok :: Bool, result :: [BotMessage TelegramSupportData]} deriving (Show, Generic)    
+
+-- VK types
+
+data Vkontakte
+
+data VKSupportData = VKSupportData deriving (Show, Eq, Generic) -- SupportData, not implemented yet
+
+instance Hashable VKSupportData where
+
+data VKBotData = VKBotData -- not implemented yet
+
+-- Mutual types 
+
+    -- input data
 data MessageType = MessageText Text | Callback Integer deriving (Show, Eq, Generic, FromJSON)
 
-data TelegramBotMessage = TelegramBotMessage { messageType :: MessageType, chat_id :: Integer, update_id :: Integer } |
-                    UnknownMessage Text deriving (Show, Generic)
+data BotMessage a = BotMessage MessageType a deriving (Show, Eq, Generic, FromJSON) -- a = SupportData
 
--- Prepacked data
+    -- prepacked data
+data AnswerType = AnswerInfo Text | AnswerText Text | AnswerButtons | SetRepeatCount Integer deriving Show
 
-data AnswerType = AnswerText Text | AnswerInfo Text | AnswerButtons | SetRepeatCount Integer deriving Show
-                                    -- chat_id
-data SupportData = TelegramSupportData Integer | VKSupportData deriving (Show, Eq, Generic)-- VK not implemented yet
+data BotAnswer a = BotAnswer AnswerType a deriving Show-- a = SupportData
 
-instance Hashable SupportData where
-
-data BotAnswer = BotAnswer AnswerType SupportData deriving Show
-
--- Packed data
-
+    -- packed data
 data KeyFlag = FlagText | FlagButtons deriving (Show, Eq, Generic)
 
 instance Hashable KeyFlag where
 
-data HashMapKey = Key SupportData KeyFlag deriving (Show, Eq, Generic)
+data HashMapKey a = Key a KeyFlag deriving (Show, Eq, Generic) -- a = SupportData
 
-instance Hashable HashMapKey where
+instance (Hashable a) => Hashable (HashMapKey a) where -- a = SupportData
 
 data HashMapData = DataText Text | Empty deriving Show

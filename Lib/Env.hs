@@ -4,8 +4,8 @@ module Env
     ( Env   (..)
     , HasLog (..)
     , HasData (..)
-    , HasMode (..)
-    , HasSortingHashTable (..)
+    --, HasMode (..)
+    --, HasSortingHashTable (..)
     ) where
 
 import qualified Data.Text as T
@@ -21,9 +21,9 @@ import Config.Mode (Mode(..))
 
 type HashTable k v = H.BasicHashTable k v
 
-data Env = Env 
-    { mode                      :: !(Mode)
-    , session                   :: !(Sess.Session)
+data Env mode = Env
+    { --mode                      :: !(Mode),
+    session                   :: !(Sess.Session)
     , envLog                    :: !(T.Text -> IO ())
     , verbosity                 :: !Verbosity
     , updateID                  :: !(IORef Integer)
@@ -34,14 +34,14 @@ data Env = Env
     , botToken                  :: !T.Text  
     , pollTimeoutMicroseconds   :: !Integer
     , maximumMessageFrequency   :: !Integer
-    , sortingHashTable          :: !(HashTable W.HashMapKey W.HashMapData)
+    --, sortingHashTable          :: !(HashTable W.HashMapKey W.HashMapData)
     }
 
 class Monad m => HasLog env m where 
     getLog          :: env -> (T.Text -> m ())
     getVerbosity    :: env -> m Verbosity
 
-instance HasLog Env IO where
+instance HasLog (Env a) IO where
     getLog          = envLog
     getVerbosity    = return . verbosity
 
@@ -57,8 +57,9 @@ class Monad m => HasData env m where
     getBotToken                 :: env -> m T.Text
     getPollTimeoutMicroseconds  :: env -> m Integer
     getMaximumMessageFrequency  :: env -> m Integer
+    getSession                  :: env -> m Sess.Session
 
-instance HasData Env IO where
+instance HasData (Env a) IO where
     getUpdateID                 = readIORef . updateID
     setUpdateID                 = writeIORef . updateID
     getRepeatCount              = readIORef . repeatCount
@@ -72,21 +73,24 @@ instance HasData Env IO where
     getBotToken                 = return . botToken
     getPollTimeoutMicroseconds  = return . pollTimeoutMicroseconds
     getMaximumMessageFrequency  = return . maximumMessageFrequency
+    getSession                  = return . session
 
+{-
 class Monad m => HasMode env m where 
     getMode             :: env -> m Mode
-    getSession          :: env -> m Sess.Session
 
-instance HasMode Env IO where
+
+instance HasMode (Env a) IO where
     getMode                     = return . mode
-    getSession                  = return . session
+
+
 
 class Monad m => HasSortingHashTable env m where
     emptyHashTable :: env -> m ()
     alter :: env -> W.HashMapKey -> (Maybe W.HashMapData -> Maybe W.HashMapData) -> m ()
     toList :: env -> m [(W.HashMapKey, W.HashMapData)]    
 
-instance HasSortingHashTable Env IO where
+instance HasSortingHashTable (Env a) IO where
     emptyHashTable = (\h -> (H.toList h) >>= (mapM_ $ \(k,_) -> H.delete h k)) . sortingHashTable
     alter = (\h -> \k f -> H.mutate h k ((\a -> (a,())) . f)) . sortingHashTable
-    toList = H.toList . sortingHashTable
+    toList = H.toList . sortingHashTable -}

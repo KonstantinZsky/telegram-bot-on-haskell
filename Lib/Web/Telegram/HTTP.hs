@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Web.Telegram.HTTP where
 
 import Data.IORef
@@ -33,17 +31,3 @@ checkTelegramConnection :: (MonadLog m, W.MonadWeb m, MonadError m) => T.Text ->
 checkTelegramConnection token = do
     r <- catchLogRethrow "Can not connect to the telegram bot. Possibly wrong token. Exiting program." W.get
     debug $ T.pack $ show r
-
-handleMessage :: (S.MonadServer m, W.MonadWeb m) => (W.HashMapKey, W.HashMapData) -> m ()
-handleMessage (hk, hd) = do
-    askRepeatMsg <- S.getRepeateQuestion
-    let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: 1},{text: "2", callback_data: 2},{text: "3", callback_data: 3},{text: "4", callback_data: 4},{text: "5", callback_data: 5}]]}  |] :: Value
-    let dt = case hk of 
-            (W.Key (W.TelegramSupportData chatID) W.FlagText)    -> case hd of
-                (W.DataText outTxt)     -> object ["chat_id" .= chatID, "text" .= outTxt]
-                W.Empty                 -> object ["chat_id" .= chatID, "text" .= ("" :: T.Text)]        
-            (W.Key (W.TelegramSupportData chatID) W.FlagButtons) -> 
-                object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
-            _                           -> undefined -- not implemented yet
-    W.post dt -- ignoring social network answer for now
-    return ()

@@ -14,14 +14,16 @@ class Monad m => MonadError m where
     catchLogRethrow     :: T.Text -> m a -> m a
     errorThrow          :: T.Text -> m a
 
-instance MonadError (ReaderT Env IO) where -- logging with error text 
-    catchLogRethrow msg action = ReaderT $ \r -> E.catch (runReaderT action r) (\err -> runReaderT (errorHandler err msg) r)
+instance MonadError (ReaderT (Env a) IO) where -- logging with error text 
+    catchLogRethrow msg action = ReaderT $ \r -> E.catch (runReaderT action r) (\err -> runReaderT (
+        (L.error $ msg <> (T.pack $ show err)) >> (liftIO $ E.throwIO (err :: E.SomeException))) r)
     errorThrow msg = L.error msg >> (liftIO $ E.throwIO TelegramBotException)
 
-errorHandler :: E.SomeException -> T.Text -> ReaderT Env IO a
+{- I dont know how to say that "a" from here is the same as from the instance
+errorHandler :: E.SomeException -> T.Text -> ReaderT (Env a) IO a
 errorHandler err msg = do
     L.error $ msg <> (T.pack $ show err)
-    liftIO $ E.throwIO err
+    liftIO $ E.throwIO err -}
 
 data TelegramBotException = TelegramBotException
     deriving Show
