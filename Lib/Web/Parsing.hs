@@ -28,8 +28,6 @@ prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m, W.Inpu
 prepareOutput botD processing = do
     (ok, errMsg) <- W.messageStatus botD
     when (not ok) $ E.errorThrow errMsg
-    --checkEmpty <- W.messageEmpty botD -- may be not needed ????
-    --if checkEmpty then (return []) else do
     (warnings, upids, answersRaw) <- W.messageData botD
     let answers = [W.BotAnswer (processing mesD) $ supD | W.BotMessage mesD supD _ <- answersRaw]
     mapM_ (\txt -> L.warning txt) warnings

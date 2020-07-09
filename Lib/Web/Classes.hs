@@ -24,7 +24,6 @@ type Update_id = Integer
 class Monad m => InputBotData m a b | m -> a, m -> b where
     decode :: ByteString -> m (Either String a)
     messageStatus   :: a -> m (Bool, T.Text)
-    messageEmpty    :: a -> m Bool
     messageData     :: (Hashable b) => a -> m ([ParsingError],[Update_id],[Types.BotMessage b])
 
 class (Monad m, Hashable b) => SortingHashMap m a b | m -> a, m -> b where

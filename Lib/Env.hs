@@ -65,7 +65,10 @@ instance HasData (Env a) IO where
         t <- getCPUTime
         writeIORef (cpuTimestamp env) t   
     getHelpMessage              = return . helpMessage 
-    getRepeateQuestion          = return . repeateQuestion
+    getRepeateQuestion env      = do
+        rc <- getRepeatCount env
+        let rq = repeateQuestion env
+        return $ "Current repeat count: " <> (T.pack $ show rc) <> "\n" <> rq
     getBotToken                 = return . botToken
     getPollTimeoutMicroseconds  = return . pollTimeoutMicroseconds
     getMaximumMessageFrequency  = return . maximumMessageFrequency

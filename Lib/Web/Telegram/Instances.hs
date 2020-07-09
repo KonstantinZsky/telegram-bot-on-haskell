@@ -43,8 +43,6 @@ instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData We
     decode str = return $ eitherDecode str
     messageStatus (WebT.TelegramBotData {WebT.ok = ok, WebT.result = result}) = 
         if ok then return (ok,"") else return (False, "Telegram response - not ok, message: " <> (T.pack $ show result))
-    messageEmpty (WebT.TelegramBotData {WebT.result = result}) =
-        if result == [] then return True else return False
     messageData (WebT.TelegramBotData {WebT.result = result}) = return $ func result where
         func [] = ([],[],[])
         func (x:xs) = let (a,b,c) = func xs in case x of
