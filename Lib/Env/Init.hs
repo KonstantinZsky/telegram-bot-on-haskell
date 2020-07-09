@@ -13,7 +13,7 @@ import qualified Env    as E
 import Data.Time.Extended (getCurrentTime)
 import Control.Exception.Extends (catchLogRethrow)
 
-initEnv :: System.Handle -> C.Config -> IO E.Env
+initEnv :: System.Handle -> C.Config -> IO (E.Env a)
 initEnv handle C.Config { C.cMode = m 
                         , C.cLogVerbosity = v
                         , C.cHelpMessage = h
@@ -25,11 +25,9 @@ initEnv handle C.Config { C.cMode = m
     uID         <- IORef.newIORef (-1)
     rc_ref      <- IORef.newIORef rc
     sess        <- Sess.newSession
-    hTable      <- H.new
     ct          <- getCPUTime
     timeStamp   <- IORef.newIORef $ ct
-    return E.Env    { E.mode                        = m
-                    , E.session                     = sess
+    return E.Env    { E.session                     = sess
                     , E.envLog                      =
                         -- may be change error to warning? 
                         \str -> getCurrentTime >>= \t -> catchLogRethrow "Error while writing a log file. Exiting program. "
@@ -42,5 +40,4 @@ initEnv handle C.Config { C.cMode = m
                     , E.repeateQuestion             = rq
                     , E.botToken                    = b
                     , E.pollTimeoutMicroseconds     = p
-                    , E.maximumMessageFrequency     = f
-                    , E.sortingHashTable            = hTable}
+                    , E.maximumMessageFrequency     = f}

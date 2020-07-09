@@ -21,14 +21,13 @@ type ParsingError = T.Text
 
 type Update_id = Integer
 
-class Monad m => InputBotData m a | m -> a where
+class Monad m => InputBotData m a b | m -> a, m -> b where
     decode :: ByteString -> m (Either String a)
-    messageStatus   :: a -> m (Bool, T.Text) -- "Telegram response - not ok, message: " <> (T.pack $ show result)
+    messageStatus   :: a -> m (Bool, T.Text)
     messageEmpty    :: a -> m Bool
-    -- ParsingError = "Unknown format of telegram message, will be ignored: " <> txt
     messageData     :: (Hashable b) => a -> m ([ParsingError],[Update_id],[Types.BotMessage b])
 
-class (Monad m, Hashable b) => SortingHashMap m a b | m -> a, a -> b where
+class (Monad m, Hashable b) => SortingHashMap m a b | m -> a, m -> b where
     createHashMap :: m a
     alter :: a -> Types.HashMapKey b -> (Maybe Types.HashMapData -> Maybe Types.HashMapData) -> m ()
     toList :: a -> m [(Types.HashMapKey b, Types.HashMapData)]

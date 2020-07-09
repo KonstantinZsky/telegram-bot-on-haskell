@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, FlexibleInstances #-}
 
 module Web.Telegram.Parsing where
 
@@ -10,7 +10,7 @@ import Web.Types
 
 instance FromJSON TelegramBotData
 
-instance FromJSON TelegramBotMessage where
+instance FromJSON (BotMessage TelegramSupportData) where
     parseJSON = withObject "message" $ \o ->
         asum[   do
             message <- o .: "message"
@@ -18,7 +18,7 @@ instance FromJSON TelegramBotMessage where
             chid <- chat .: "id" 
             message_txt <- message .: "text" 
             upid <- o .: "update_id"
-            return TelegramBotMessage {messageType = MessageText message_txt, chat_id = chid, update_id = upid},
+            return $ BotMessage (MessageText message_txt) (TelegramSupportData chid) upid,
                 do
             cbq <- o .: "callback_query"
             message <- cbq .: "message"
@@ -28,5 +28,7 @@ instance FromJSON TelegramBotMessage where
             let callback_data = read callback_data_raw
             --callback_data <- cbq .: "data"
             upid <- o .: "update_id"
-            return TelegramBotMessage {messageType = Callback callback_data, chat_id = chid, update_id = upid},
+            return $ BotMessage (Callback callback_data) (TelegramSupportData chid) upid,
             return $ UnknownMessage $ pack $ show o]
+
+

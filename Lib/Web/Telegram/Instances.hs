@@ -1,9 +1,10 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, QuasiQuotes #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TypeFamilies, UndecidableInstances, QuasiQuotes #-}
 
 module Web.Telegram.Instances where
 
 import qualified Data.Text    as T
 import qualified Network.Wreq as W
+import qualified Data.HashTable.IO as H
 import qualified Network.Wreq.Session as Sess
 import Control.Monad.Trans.Reader (ReaderT(..))
 import Control.Monad.IO.Class (liftIO) 
@@ -16,7 +17,10 @@ import qualified Server.Monad   as S
 import qualified Env as E
 import qualified Web.Types as WebT
 import Config.Mode (Mode(..))
-import Web.Classes (MonadWeb(..),OutputBotData(..))
+import Web.Classes (MonadWeb(..), InputBotData(..), SortingHashMap(..), OutputBotData(..))
+import Web.Telegram.Parsing
+
+type HashTable k v = H.BasicHashTable k v
 
 instance MonadWeb (ReaderT (E.Env WebT.Telegram) IO) where
     getSession = ReaderT E.getSession
@@ -34,6 +38,25 @@ instance MonadWeb (ReaderT (E.Env WebT.Telegram) IO) where
         let conStr =  "https://api.telegram.org/bot" <> b <> "/sendMessage"
         s <- getSession
         liftIO $ Sess.post s conStr json
+
+instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData WebT.TelegramSupportData where
+    decode str = return $ eitherDecode str
+    messageStatus (WebT.TelegramBotData {WebT.ok = ok, WebT.result = result}) = 
+        if ok then return (ok,"") else return (False, "Telegram response - not ok, message: " <> (T.pack $ show result))
+    messageEmpty (WebT.TelegramBotData {WebT.result = result}) =
+        if result == [] then return True else return False
+    messageData (WebT.TelegramBotData {WebT.result = result}) = return $ func result where
+        func [] = ([],[],[])
+        func (x:xs) = let (a,b,c) = func xs in case x of
+            (WebT.UnknownMessage txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
+            bmsg@(WebT.BotMessage _ _ upid) -> (a, upid:b, bmsg:c)
+
+
+instance (HashTable (WebT.HashMapKey WebT.TelegramSupportData) WebT.HashMapData ~ hashmap) => 
+    SortingHashMap (ReaderT (E.Env WebT.Telegram) IO) hashmap WebT.TelegramSupportData where
+    createHashMap = liftIO $ H.new
+    alter ref k f = liftIO $ H.mutate ref k ((\a -> (a,())) . f)
+    toList ref = liftIO $ H.toList ref
 
 instance OutputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramSupportData where
     handleMessage (hk, hd) = do

@@ -34,7 +34,9 @@ data VKBotData = VKBotData -- not implemented yet
     -- input data
 data MessageType = MessageText Text | Callback Integer deriving (Show, Eq, Generic, FromJSON)
 
-data BotMessage a = BotMessage MessageType a deriving (Show, Eq, Generic, FromJSON) -- a = SupportData
+type Update_id = Integer
+
+data BotMessage a = BotMessage MessageType a Update_id | UnknownMessage Text deriving (Show, Eq, Generic) -- a = SupportData
 
     -- prepacked data
 data AnswerType = AnswerInfo Text | AnswerText Text | AnswerButtons | SetRepeatCount Integer deriving Show

@@ -10,7 +10,10 @@ import Control.Monad.Trans.Reader
 import qualified Files          as F
 import qualified Config         as C
 import qualified Env.Init       as E
+import qualified Env            as E
 import qualified Server         as S
+import qualified Web.Types      as W
+import Config.Mode (Mode(..))
 import Concole (askUser)
 import Control.Exception.Extends (catchLogRethrow)
 
@@ -27,8 +30,18 @@ main = do
         (openFile "log.txt" WriteMode)
         (hClose)
         (\fileHandle -> do
-            env <- E.initEnv fileHandle cfg
-            runReaderT S.runServer env
-            hClose fileHandle)
+            case C.cMode cfg of 
+                TG -> do
+                    env <- E.initEnv fileHandle cfg
+                    runReaderT S.runServer (env :: E.Env W.Telegram)
+                    hClose fileHandle
+                VK -> undefined
+                {- do
+                    env <- E.initEnv fileHandle cfg
+                    runReaderT S.runServer (env :: E.Env W.Vkontakte)
+                    hClose fileHandle
+                -}
+                
+                )
     
     

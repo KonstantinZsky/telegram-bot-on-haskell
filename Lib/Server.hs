@@ -3,6 +3,7 @@ module Server where
 import Data.Aeson (eitherDecode)
 import Control.Monad (forever)
 import Control.Concurrent (threadDelay)
+import Data.Hashable (Hashable)
 import qualified Data.Text as T
 
 import Web.Telegram.HTTP (checkTelegramConnection)
@@ -14,7 +15,8 @@ import qualified Web.Types      as W
 import qualified Web.Parsing    as P
 import qualified Control.Exception.Extends as E
 
-runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadSortingHashTable m, S.MonadTime m) => m ()
+runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m,
+    W.InputBotData m a b, W.SortingHashMap m h b, W.OutputBotData m b, Hashable b, Show b) => m ()
 runServer = do
     b <- S.getBotToken
     checkTelegramConnection b
@@ -31,7 +33,8 @@ runServer = do
         S.setCpuTimestamp
         cycle_step
 
-cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadSortingHashTable m, S.MonadTime m) => m ()
+cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m, 
+    W.InputBotData m a b, W.SortingHashMap m h b, W.OutputBotData m b, Hashable b, Show b) => m ()
 cycle_step = do
     jsonBody <- W.get
     botData <- P.parseInput jsonBody
@@ -43,8 +46,8 @@ cycle_step = do
             (W.Callback x)              -> W.SetRepeatCount x
             (W.MessageText txt)         -> W.AnswerText txt
     forPacking <- P.prepareOutput botData messageHandling
-    P.packOutput forPacking
-    P.sendMessages
+    forSending <- P.packOutput forPacking
+    P.sendMessages forSending
 
       
 

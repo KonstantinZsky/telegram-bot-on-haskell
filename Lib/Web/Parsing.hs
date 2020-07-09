@@ -16,33 +16,32 @@ import qualified Logger         as L
 import qualified Server.Monad   as S
 import qualified Control.Exception.Extends as E
 
-parseInput :: (Monad m, W.MonadWeb m, E.MonadError m, W.InputBotData m a) => ByteString -> m a
+parseInput :: (Monad m, W.MonadWeb m, E.MonadError m, W.InputBotData m a b) => ByteString -> m a
 parseInput input = do 
     bot_data <- W.decode input
     case bot_data of
         (Left err)  -> E.errorThrow $ "Impossible parsing error while processing bot answer: " <> (T.pack $ show err)   
         (Right btd) -> return btd        
 
-prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m, W.InputBotData m a, Hashable b, Show b) =>
-                        a -> (W.MessageType -> W.AnswerType) -> m [W.BotAnswer b]
+prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m, W.InputBotData m a b, W.SortingHashMap m h b, 
+    Hashable b, Show b) => a -> (W.MessageType -> W.AnswerType) -> m [W.BotAnswer b]
 prepareOutput botD processing = do
-    (status, errMsg) <- W.messageStatus botD
-    when status $ E.errorThrow errMsg
+    (ok, errMsg) <- W.messageStatus botD
+    when (not ok) $ E.errorThrow errMsg
     --checkEmpty <- W.messageEmpty botD -- may be not needed ????
     --if checkEmpty then (return []) else do
     (warnings, upids, answersRaw) <- W.messageData botD
-    let answers = [W.BotAnswer (processing mesD) $ supD | W.BotMessage mesD supD <- answersRaw]
+    let answers = [W.BotAnswer (processing mesD) $ supD | W.BotMessage mesD supD _ <- answersRaw]
     mapM_ (\txt -> L.warning txt) warnings
     when (upids /= []) $ S.setUpdateID $ 1 + maximum upids
     L.debug $ T.pack $ show answers
     return answers
 
-packOutput :: (Monad m, L.MonadLog m, S.MonadServer m, W.InputBotData m a, W.SortingHashMap m h b, Hashable b) => 
+packOutput :: (Monad m, L.MonadLog m, S.MonadServer m, W.InputBotData m a b, W.SortingHashMap m h b, Hashable b) => 
                     [W.BotAnswer b] -> m [(W.HashMapKey b, W.HashMapData)]
 packOutput answers = do
     hashMap <- W.createHashMap
-    let func = \(W.BotAnswer ansT supD) -> do
-        case ansT of
+    let func = (\(W.BotAnswer ansT supD) -> case ansT of
             (W.SetRepeatCount x) -> do 
                 S.setRepeatCount x 
                 L.debug $ "Repeat count changed: " <> (T.pack $ show x) <> ". packOutput 1"
@@ -60,8 +59,8 @@ packOutput answers = do
                     (Just (W.DataText txtOld)) -> Just $ W.DataText $ txtOld <> txt <> "\n"
                     _       -> Just $ W.DataText $ txt <> "\n")
             (W.AnswerButtons) -> do
-                W.alter hashMap (W.Key supD W.FlagButtons) $ \_ -> Just W.Empty
-    mapM_ (func) answers
+                W.alter hashMap (W.Key supD W.FlagButtons) (\_ -> Just W.Empty))
+    mapM_ func answers
     W.toList hashMap
 
 sendMessages :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadTime m, W.MonadWeb m, W.OutputBotData m b) => 

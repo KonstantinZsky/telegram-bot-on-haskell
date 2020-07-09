@@ -47,15 +47,3 @@ instance (MonadIO m, Monad m) => MonadTime (ReaderT env m) where
 instance Monad m => MonadTime (StateT env m) where -- used for testing
     timeout s = return ()
     getCpuTime = return 0
-
-{-
--- for packing output messagies
-class Monad m => MonadSortingHashTable m where
-    emptyHashTable :: m ()
-    alter :: W.HashMapKey -> ((Maybe W.HashMapData -> Maybe W.HashMapData) -> m ())
-    toList :: m [(W.HashMapKey, W.HashMapData)]       
-
-instance E.HasSortingHashTable env m => MonadSortingHashTable (ReaderT env m) where
-    emptyHashTable = ReaderT E.emptyHashTable
-    alter k f = ReaderT $ \env -> E.alter env k f
-    toList = ReaderT E.toList -}

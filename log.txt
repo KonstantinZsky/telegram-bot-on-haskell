@@ -1,52 +1,5 @@
-2020-07-04 11:30:48.5690709 Debug: "{\"ok\":true,\"result\":[]}"
-2020-07-04 11:32:39.3843344 Debug: [BotAnswer AnswerButtons (TelegramSupportData 447114018)]
-2020-07-04 11:32:44.4713001 Debug: [BotAnswer (SetRepeatCount 2) (TelegramSupportData 447114018),BotAnswer (AnswerText "12") (TelegramSupportData 447114018)]
-2020-07-04 11:32:44.4713001 Debug: Repeat count changed: 2. packOutput 1
-2020-07-04 11:32:49.5850354 Debug: [BotAnswer (AnswerText "fff") (TelegramSupportData 447114018),BotAnswer (SetRepeatCount 3) (TelegramSupportData 447114018),BotAnswer (AnswerText "sdfa") (TelegramSupportData 447114018)]
-2020-07-04 11:32:49.5850354 Debug: Repeat count changed: 3. packOutput 1
-2020-07-04 11:32:54.7011499 Debug: [BotAnswer (AnswerText "waF") (TelegramSupportData 447114018),BotAnswer (AnswerText "123") (TelegramSupportData 447114018)]
-2020-07-04 11:33:04.8348379 Debug: [BotAnswer (SetRepeatCount 1) (TelegramSupportData 447114018),BotAnswer (AnswerText "ADSF") (TelegramSupportData 447114018)]
-2020-07-04 11:33:04.8348379 Debug: Repeat count changed: 1. packOutput 1
-2020-07-04 11:33:09.9529098 Debug: [BotAnswer (AnswerText "32") (TelegramSupportData 447114018)]
-2020-07-04 11:34:30.6198149 Debug: [BotAnswer (SetRepeatCount 4) (TelegramSupportData 447114018)]
-2020-07-04 11:34:30.6208183 Debug: Repeat count changed: 4. packOutput 1
-2020-07-04 11:35:00.8321907 Debug: [BotAnswer (AnswerText "g") (TelegramSupportData 447114018)]
-2020-07-04 11:35:26.0992155 Debug: [BotAnswer (SetRepeatCount 1) (TelegramSupportData 447114018)]
-2020-07-04 11:35:26.1002172 Debug: Repeat count changed: 1. packOutput 1
-2020-07-04 11:35:51.2933187 Debug: [BotAnswer (SetRepeatCount 2) (TelegramSupportData 447114018)]
-2020-07-04 11:35:51.2933187 Debug: Repeat count changed: 2. packOutput 1
-2020-07-04 11:48:38.2186747 Debug: [BotAnswer (AnswerText "g") (TelegramSupportData 447114018)]
-2020-07-04 11:48:43.3427045 Debug: [BotAnswer (SetRepeatCount 1) (TelegramSupportData 447114018)]
-2020-07-04 11:48:43.3437013 Debug: Repeat count changed: 1. packOutput 1
-2020-07-04 11:48:48.3846685 Debug: [BotAnswer (AnswerText "h") (TelegramSupportData 447114018)]
-2020-07-04 13:10:45.5767767 Debug: [BotAnswer (AnswerText "11") (TelegramSupportData 1262181186)]
-2020-07-04 13:12:06.4653285 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186),BotAnswer (AnswerInfo "Echo bot, returns messages back to the user.") (TelegramSupportData 1262181186)]
-2020-07-04 13:12:26.826231 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186),BotAnswer (AnswerText "23") (TelegramSupportData 1262181186),BotAnswer (AnswerText "33") (TelegramSupportData 1262181186),BotAnswer (AnswerText "3") (TelegramSupportData 1262181186),BotAnswer (AnswerText "3") (TelegramSupportData 1262181186)]
-2020-07-04 13:12:57.1398779 Debug: [BotAnswer (AnswerText "jfjf") (TelegramSupportData 1262181186),BotAnswer (AnswerText "1") (TelegramSupportData 1262181186),BotAnswer (AnswerText "1") (TelegramSupportData 1262181186),BotAnswer (AnswerText "1") (TelegramSupportData 1262181186),BotAnswer (AnswerText "1") (TelegramSupportData 1262181186),BotAnswer (AnswerText "1") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:02.2439396 Debug: [BotAnswer (AnswerText "2") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:17.4388593 Debug: [BotAnswer (SetRepeatCount 4) (TelegramSupportData 1262181186),BotAnswer (AnswerText "2") (TelegramSupportData 1262181186),BotAnswer (AnswerText "2") (TelegramSupportData 1262181186),BotAnswer (AnswerText "2") (TelegramSupportData 1262181186),BotAnswer (AnswerText "2") (TelegramSupportData 1262181186),BotAnswer (AnswerText "2") (TelegramSupportData 1262181186),BotAnswer (AnswerText "d") (TelegramSupportData 1262181186),BotAnswer (AnswerText "d") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:17.4388593 Debug: Repeat count changed: 4. packOutput 1
-2020-07-04 13:13:22.5413379 Debug: [BotAnswer (AnswerText "f") (TelegramSupportData 1262181186),BotAnswer (AnswerText "f") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:37.7383547 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186),BotAnswer (AnswerInfo "Echo bot, returns messages back to the user.") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:42.9152802 Debug: [BotAnswer (AnswerText "kgkg") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:48.0363906 Debug: [BotAnswer (SetRepeatCount 1) (TelegramSupportData 1262181186),BotAnswer (AnswerText "lj") (TelegramSupportData 1262181186)]
-2020-07-04 13:13:48.0363906 Debug: Repeat count changed: 1. packOutput 1
-2020-07-04 13:14:18.3797094 Debug: [BotAnswer (SetRepeatCount 3) (TelegramSupportData 1262181186)]
-2020-07-04 13:14:18.3797094 Debug: Repeat count changed: 3. packOutput 1
-2020-07-04 13:14:23.4192241 Debug: [BotAnswer (SetRepeatCount 1) (TelegramSupportData 1262181186)]
-2020-07-04 13:14:23.4192241 Debug: Repeat count changed: 1. packOutput 1
-2020-07-04 13:14:28.4589453 Debug: [BotAnswer (AnswerText "123") (TelegramSupportData 1262181186)]
-2020-07-04 13:14:43.6528908 Debug: [BotAnswer (AnswerText "5") (TelegramSupportData 1262181186),BotAnswer (SetRepeatCount 3) (TelegramSupportData 1262181186),BotAnswer (AnswerText "7") (TelegramSupportData 1262181186)]
-2020-07-04 13:14:43.6539053 Debug: Repeat count changed: 3. packOutput 1
-2020-07-04 13:14:58.8598913 Debug: [BotAnswer (AnswerText "fg") (TelegramSupportData 1262181186)]
-2020-07-04 13:15:59.4338309 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186),BotAnswer (AnswerText "/repaet") (TelegramSupportData 1262181186)]
-2020-07-04 13:16:09.6622295 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186)]
-2020-07-04 13:16:14.8329028 Debug: [BotAnswer (AnswerText "/repaet") (TelegramSupportData 1262181186),BotAnswer (AnswerText "/repaet") (TelegramSupportData 1262181186)]
-2020-07-04 13:16:19.9487389 Debug: [BotAnswer (AnswerText "/repaet") (TelegramSupportData 1262181186)]
-2020-07-04 13:16:25.0700583 Debug: [BotAnswer (AnswerText "/repaet") (TelegramSupportData 1262181186)]
-2020-07-04 13:16:35.1973996 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186),BotAnswer AnswerButtons (TelegramSupportData 1262181186)]
-2020-07-04 13:16:40.3004484 Debug: [BotAnswer AnswerButtons (TelegramSupportData 1262181186),BotAnswer AnswerButtons (TelegramSupportData 1262181186)]
-2020-07-04 17:38:06.5157299 Debug: [BotAnswer (AnswerText "\1086\1088\1087\1087") (TelegramSupportData 1262181186)]
-2020-07-04 17:39:07.2154652 Debug: [BotAnswer (SetRepeatCount 1) (TelegramSupportData 1262181186)]
-2020-07-04 17:39:07.2164636 Debug: Repeat count changed: 1. packOutput 1
-2020-07-04 17:39:12.256315 Debug: [BotAnswer (AnswerText "\1083\1088\1083\1088") (TelegramSupportData 1262181186)]
+2020-07-09 16:41:50.6078022 Debug: "{\"ok\":true,\"result\":[]}"
+2020-07-09 16:41:55.6139551 Debug: []
+2020-07-09 16:42:00.6506723 Debug: []
+2020-07-09 16:42:05.6895404 Debug: []
+2020-07-09 16:42:10.7270582 Debug: []
