@@ -19,6 +19,8 @@ import qualified Web.Types as WebT
 import Config.Mode (Mode(..))
 import Web.Classes (MonadWeb(..), InputBotData(..), SortingHashMap(..), OutputBotData(..))
 import Web.Telegram.Parsing
+import Control.Exception.Extends (catchLogRethrow)
+import Logger (debug)
 
 type HashTable k v = H.BasicHashTable k v
 
@@ -38,6 +40,9 @@ instance MonadWeb (ReaderT (E.Env WebT.Telegram) IO) where
         let conStr =  "https://api.telegram.org/bot" <> b <> "/sendMessage"
         s <- getSession
         liftIO $ Sess.post s conStr json
+    checkConnection token = do
+        r <- catchLogRethrow "Can not connect to the telegram bot. Possibly wrong token. Exiting program." get
+        debug $ T.pack $ show r
 
 instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData WebT.TelegramSupportData where
     decode str = return $ eitherDecode str
@@ -48,7 +53,6 @@ instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData We
         func (x:xs) = let (a,b,c) = func xs in case x of
             (WebT.UnknownMessage txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
             bmsg@(WebT.BotMessage _ _ upid) -> (a, upid:b, bmsg:c)
-
 
 instance (HashTable (WebT.HashMapKey WebT.TelegramSupportData) WebT.HashMapData ~ hashmap) => 
     SortingHashMap (ReaderT (E.Env WebT.Telegram) IO) hashmap WebT.TelegramSupportData where

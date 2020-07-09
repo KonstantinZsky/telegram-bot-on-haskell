@@ -26,6 +26,7 @@ data Env mode = Env
     , updateID                  :: !(IORef Integer)
     , repeatCount               :: !(IORef Integer)
     , cpuTimestamp              :: !(IORef Integer)
+    , supportDataString         :: !(IORef T.Text)
     , helpMessage               :: !T.Text
     , repeateQuestion           :: !T.Text
     , botToken                  :: !T.Text  
@@ -48,6 +49,8 @@ class Monad m => HasData env m where
     setRepeatCount              :: env -> Integer -> m ()
     getCpuTimestamp             :: env -> m Integer
     setCpuTimestamp             :: env -> m ()
+    getSupportDataString        :: env -> m T.Text
+    setSupportDataString        :: env -> T.Text -> m ()
     getHelpMessage              :: env -> m T.Text
     getRepeateQuestion          :: env -> m T.Text
     getBotToken                 :: env -> m T.Text
@@ -63,7 +66,9 @@ instance HasData (Env a) IO where
     getCpuTimestamp             = readIORef . cpuTimestamp
     setCpuTimestamp env         = do
         t <- getCPUTime
-        writeIORef (cpuTimestamp env) t   
+        writeIORef (cpuTimestamp env) t  
+    getSupportDataString        = readIORef . supportDataString
+    setSupportDataString        = writeIORef . supportDataString 
     getHelpMessage              = return . helpMessage 
     getRepeateQuestion env      = do
         rc <- getRepeatCount env

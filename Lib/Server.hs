@@ -6,7 +6,6 @@ import Control.Concurrent (threadDelay)
 import Data.Hashable (Hashable)
 import qualified Data.Text as T
 
-import Web.Telegram.HTTP (checkTelegramConnection)
 import Data.Time.Extended (cpuToMicro)
 import qualified Server.Monad   as S
 import qualified Logger         as L
@@ -19,7 +18,7 @@ runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.Mon
     W.InputBotData m a b, W.SortingHashMap m h b, W.OutputBotData m b, Hashable b, Show b) => m ()
 runServer = do
     b <- S.getBotToken
-    checkTelegramConnection b
+    W.checkConnection b
     pollTimeout <- S.getPollTimeoutMicroseconds
     forever $ do
         timeStamp <- S.getCpuTimestamp

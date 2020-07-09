@@ -16,7 +16,9 @@ class Monad m => MonadServer m where
     getRepeatCount              :: m Integer
     setRepeatCount              :: (Integer -> m ())
     getCpuTimestamp             :: m Integer
-    setCpuTimestamp             :: m ()    
+    setCpuTimestamp             :: m () 
+    getSupportDataString        :: m T.Text
+    setSupportDataString        :: (T.Text -> m ())      
     getHelpMessage              :: m T.Text
     getRepeateQuestion          :: m T.Text
     getBotToken                 :: m T.Text
@@ -27,9 +29,11 @@ instance E.HasData env m => MonadServer (ReaderT env m) where
     getUpdateID = ReaderT E.getUpdateID    
     setUpdateID x = ReaderT $ \env -> E.setUpdateID env x
     getRepeatCount = ReaderT E.getRepeatCount
-    setRepeatCount x = ReaderT $ \env ->  E.setRepeatCount env x
+    setRepeatCount x = ReaderT $ \env -> E.setRepeatCount env x
     getCpuTimestamp = ReaderT E.getCpuTimestamp
-    setCpuTimestamp = ReaderT E.setCpuTimestamp  
+    setCpuTimestamp = ReaderT E.setCpuTimestamp 
+    getSupportDataString = ReaderT E.getSupportDataString
+    setSupportDataString x = ReaderT $ \env -> E.setSupportDataString env x 
     getHelpMessage = ReaderT E.getHelpMessage
     getRepeateQuestion = ReaderT E.getRepeateQuestion
     getBotToken = ReaderT E.getBotToken
