@@ -22,6 +22,7 @@ class Monad m => MonadServer m where
     getHelpMessage              :: m T.Text
     getRepeateQuestion          :: m T.Text
     getBotToken                 :: m T.Text
+    getGroupID                  :: m Integer
     getPollTimeoutMicroseconds  :: m Integer
     getMaximumMessageFrequency  :: m Integer   
 
@@ -37,6 +38,7 @@ instance E.HasData env m => MonadServer (ReaderT env m) where
     getHelpMessage = ReaderT E.getHelpMessage
     getRepeateQuestion = ReaderT E.getRepeateQuestion
     getBotToken = ReaderT E.getBotToken
+    getGroupID = ReaderT E.getGroupID
     getPollTimeoutMicroseconds = ReaderT E.getPollTimeoutMicroseconds
     getMaximumMessageFrequency = ReaderT E.getMaximumMessageFrequency
 

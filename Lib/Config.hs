@@ -13,7 +13,7 @@ import qualified Data.Configurator.Types as C
 import qualified Control.Exception as E
 
 import Config.Mode (Mode(..))
-import Config.Parsing (GreaterThanOne(..), unwrap)
+import Config.Parsing (GreaterThanZero(..), unwrap)
 import Logger (warning, info, debug)
 import Logger.Verbosity (Verbosity(..))
 import Concole (askUser)
@@ -29,6 +29,7 @@ data Config = Config
     , cPollTimeoutMicroseconds  :: !Integer
     , cMaximumMessageFrequency  :: !Integer    
     , cBotToken                 :: !T.Text
+    , cGroupID                  :: !Integer
     } deriving Show
 
 -- can throw exceptions when writing files
@@ -43,16 +44,18 @@ loadConfig path = do
     when (isNothing h) $ warning "Reading config: field cHelpMessage missing or wrong value"
     rq <- C.lookup  rawCfg "cRepeatQuestion" :: IO (Maybe T.Text)
     when (isNothing rq) $ warning "Reading config: field cRepeatQuestion missing or wrong value"
-    rc <- C.lookup  rawCfg "cRepeatCount" :: IO (Maybe GreaterThanOne)
+    rc <- C.lookup  rawCfg "cRepeatCount" :: IO (Maybe GreaterThanZero)
     when (isNothing rc) $ warning "Reading config: field cRepeatCount missing or wrong value"
-    p <- C.lookup  rawCfg "cPollTimeoutMicroseconds" :: IO (Maybe GreaterThanOne)
+    p <- C.lookup  rawCfg "cPollTimeoutMicroseconds" :: IO (Maybe GreaterThanZero)
     when (isNothing p) $ warning "Reading config: field cPollTimeoutMicroseconds missing or wrong value"
-    f <- C.lookup  rawCfg "cMaximumMessageFrequency" :: IO (Maybe GreaterThanOne)
+    f <- C.lookup  rawCfg "cMaximumMessageFrequency" :: IO (Maybe GreaterThanZero)
     when (isNothing f) $ warning "Reading config: field cMaximumMessageFrequency missing or wrong value"      
     b <- C.lookup  rawCfg "cBotToken" :: IO (Maybe T.Text)
-    when (isNothing b) $ warning "Reading config: field cBotToken missing or wrong value"   
-    let cfg = getConfig m v h rq (unwrap rc) (unwrap p) (unwrap f) b
-    when (isNothing (m>>v>>h>>rq>>rc>>p>>f>>b) ) 
+    when (isNothing b) $ warning "Reading config: field cBotToken missing or wrong value"  
+    gi <- C.lookup  rawCfg "cGroupID" :: IO (Maybe GreaterThanZero)
+    when (isNothing gi) $ warning "Reading config: field cGroupID missing or wrong value"   
+    let cfg = getConfig m v h rq (unwrap rc) (unwrap p) (unwrap f) b (unwrap gi)
+    when (isNothing (m>>v>>h>>rq>>rc>>p>>f>>b>>gi) ) 
         (askUser "Do you want to rewrite missing fields of the config with default values? (Y/y) (Any other letter for reject)\n" 
             (T.writeFile path (configContents cfg) >> info "Config renewed")
             (warning "Misssing fields in config"))
@@ -66,7 +69,8 @@ configContents Config   { cMode = m
                         , cRepeatCount = rc
                         , cPollTimeoutMicroseconds  = p
                         , cMaximumMessageFrequency = f
-                        , cBotToken = b} = 
+                        , cBotToken = b
+                        , cGroupID = gi} = 
     "# Mode - social network to connect to: \"TG\" for telegram, \"VK\" for vkontakte. Must be in quotes.\n" <>
     "cMode = \""                    <> (T.pack $ show m) <> "\" \n\n" <>
     "# Verbosity level from wich messagies will show up, can be: " <>
@@ -77,20 +81,23 @@ configContents Config   { cMode = m
     "# Question that will be shown after command /repeat. Must be in quotes. \n" <>
     "cRepeatQuestion = \""          <> rq <> "\" \n\n" <>
     "# Number of duplication for bot response. \n" <>
-    "# Must be greater than 1. \n"  <>
+    "# Must be greater than 0. \n"  <>
     "cRepeatCount = "               <> (T.pack $ show rc) <> " \n\n" <>
-    "# Long polling timeout microseconds, 1s = 1000000. \n" <>
-    "# Must be greater than 1. \n"  <>
+    "# Long polling timeout microseconds, 1s = 1000000. For VK must be less than 25s or connection will be lost. \n" <>
+    "# Must be greater than 0. \n"  <>
     "cPollTimeoutMicroseconds = "   <> (T.pack $ show p) <> " \n\n" <>
-    "# Maximum message output per second. For current date (30.06.2020) it is 30 for Telegram. \n" <>
-    "# Must be greater than 1. \n"  <>
+    "# Maximum message output per second. For current date (30.06.2020) it is 30 for Telegram and 20 for Vkontakte. \n" <>
+    "# Must be greater than 0. \n"  <>
     "cMaximumMessageFrequency = "   <> (T.pack $ show f) <> " \n\n" <>   
-    "# Bot token for qonnection to the API. Must be in quotes. \n" <>
-    "cBotToken = \""                <> b <> "\" \n"
+    "# Bot token for connecting to the API. Must be in quotes. \n" <>
+    "cBotToken = \""                <> b <> "\" \n" <>
+    "# Vkontakte group ID. Required only for VK mode. \n" <>
+    "# Must be greater than 0. \n"  <>
+    "cGroupID = "               <> (T.pack $ show rc) <> " \n\n"
 
 getConfig :: Maybe Mode -> Maybe Verbosity -> Maybe T.Text -> Maybe T.Text 
-                -> Maybe Integer -> Maybe Integer -> Maybe Integer -> Maybe T.Text -> Config
-getConfig m v h rq rc p f b = Config
+                -> Maybe Integer -> Maybe Integer -> Maybe Integer -> Maybe T.Text -> Maybe Integer -> Config
+getConfig m v h rq rc p f b gi = Config
     { cMode                     = fromMaybe TG m
     , cLogVerbosity             = fromMaybe Debug v
     , cHelpMessage              = fromMaybe "Echo bot, returns messages back to the user." h
@@ -98,10 +105,11 @@ getConfig m v h rq rc p f b = Config
     , cRepeatCount              = fromMaybe 1 rc
     , cPollTimeoutMicroseconds  = fromMaybe 5000000 p
     , cMaximumMessageFrequency  = fromMaybe 20 f
-    , cBotToken                 = fromMaybe "" b}
+    , cBotToken                 = fromMaybe "" b
+    , cGroupID                  = fromMaybe 0 gi}
 
 getDefaultConfig :: Config
-getDefaultConfig = getConfig Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+getDefaultConfig = getConfig Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 defaultConfigContents :: T.Text
 defaultConfigContents = configContents getDefaultConfig

@@ -21,9 +21,11 @@ initEnv handle C.Config { C.cMode = m
                         , C.cRepeatCount = rc
                         , C.cPollTimeoutMicroseconds = p
                         , C.cMaximumMessageFrequency = f
-                        , C.cBotToken = b} = do
+                        , C.cBotToken = b
+                        , C.cGroupID = gi} = do
     uID         <- IORef.newIORef (-1)
     rc_ref      <- IORef.newIORef rc
+    sd          <- IORef.newIORef ""
     sess        <- Sess.newSession
     ct          <- getCPUTime
     timeStamp   <- IORef.newIORef $ ct
@@ -36,8 +38,10 @@ initEnv handle C.Config { C.cMode = m
                     , E.updateID                    = uID
                     , E.repeatCount                 = rc_ref
                     , E.cpuTimestamp                = timeStamp
+                    , E.supportDataString           = sd
                     , E.helpMessage                 = h
                     , E.repeateQuestion             = rq
                     , E.botToken                    = b
+                    , E.groupID                     = gi
                     , E.pollTimeoutMicroseconds     = p
                     , E.maximumMessageFrequency     = f}

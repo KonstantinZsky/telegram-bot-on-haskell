@@ -17,8 +17,7 @@ import qualified Control.Exception.Extends as E
 runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m,
     W.InputBotData m a b, W.SortingHashMap m h b, W.OutputBotData m b, Hashable b, Show b) => m ()
 runServer = do
-    b <- S.getBotToken
-    W.checkConnection b
+    W.checkConnection
     pollTimeout <- S.getPollTimeoutMicroseconds
     forever $ do
         timeStamp <- S.getCpuTimestamp

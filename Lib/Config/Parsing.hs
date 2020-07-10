@@ -15,18 +15,18 @@ instance Configured Verbosity where
         (Just "Error")      -> Just Error
         _                   -> Nothing
 
-newtype GreaterThanOne = GreaterThanOne Integer
+newtype GreaterThanZero = GreaterThanZero Integer
 
-instance Configured GreaterThanOne where
+instance Configured GreaterThanZero where
     convert v = case (convert v :: Maybe Integer) of
-        (Just a)            -> if a < 1 then Nothing else Just $ GreaterThanOne a
+        (Just a)            -> if a < 1 then Nothing else Just $ GreaterThanZero a
         Nothing             -> Nothing
 
-instance Show GreaterThanOne where
-    show (GreaterThanOne a) = show a
+instance Show GreaterThanZero where
+    show (GreaterThanZero a) = show a
 
-unwrap :: Maybe GreaterThanOne -> Maybe Integer
-unwrap (Just (GreaterThanOne a)) = Just a
+unwrap :: Maybe GreaterThanZero -> Maybe Integer
+unwrap (Just (GreaterThanZero a)) = Just a
 unwrap Nothing = Nothing
 
 instance Configured Mode where

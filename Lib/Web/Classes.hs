@@ -16,7 +16,7 @@ class Monad m => MonadWeb m where
     getSession              :: m Sess.Session
     get                     :: m ByteString
     post                    :: Value -> m (Response ByteString)
-    checkConnection         :: T.Text -> m () 
+    checkConnection         :: m () 
 
 type ParsingError = T.Text
 

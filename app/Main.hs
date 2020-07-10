@@ -23,7 +23,12 @@ main = do
     cfg <- catchLogRethrow "Error while reading config " (C.loadConfig "test.cfg")
     putStrLn $ show cfg
     when (C.cBotToken cfg == "") $ do
-        askUser "Bot token is not specifed. You must write it in config manually. (Put any char to quit program)" (return ()) (return ())
+        askUser ("Bot token is not specifed. " <> 
+            "You must write it in config manually. (Put any char to quit the program)") (return ()) (return ())
+        E.exitSuccess
+    when (C.cMode cfg == VK && C.cGroupID cfg == 0) $ do
+        askUser ("Mode is VK but group ID is not specifed. " <> 
+            "You must write it in config manually. (Put any char to quit the program)") (return ()) (return ())
         E.exitSuccess
     F.checkForFile "Log file not found. Creating " "log.txt" ""
     bracket

@@ -23,6 +23,8 @@ data TelegramBotData = TelegramBotData { ok :: Bool, result :: [BotMessage Teleg
 
 data Vkontakte
 
+data GetLongPollServer = GetLongPollServer { key :: Text, server :: Text, ts :: Integer} 
+
 data VKSupportData = VKSupportData deriving (Show, Eq, Generic) -- SupportData, not implemented yet
 
 instance Hashable VKSupportData where

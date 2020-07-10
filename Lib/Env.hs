@@ -29,7 +29,8 @@ data Env mode = Env
     , supportDataString         :: !(IORef T.Text)
     , helpMessage               :: !T.Text
     , repeateQuestion           :: !T.Text
-    , botToken                  :: !T.Text  
+    , botToken                  :: !T.Text 
+    , groupID                   :: !Integer 
     , pollTimeoutMicroseconds   :: !Integer
     , maximumMessageFrequency   :: !Integer
     }
@@ -54,6 +55,7 @@ class Monad m => HasData env m where
     getHelpMessage              :: env -> m T.Text
     getRepeateQuestion          :: env -> m T.Text
     getBotToken                 :: env -> m T.Text
+    getGroupID                  :: env -> m Integer
     getPollTimeoutMicroseconds  :: env -> m Integer
     getMaximumMessageFrequency  :: env -> m Integer
     getSession                  :: env -> m Sess.Session
@@ -75,6 +77,7 @@ instance HasData (Env a) IO where
         let rq = repeateQuestion env
         return $ "Current repeat count: " <> (T.pack $ show rc) <> "\n" <> rq
     getBotToken                 = return . botToken
+    getGroupID                  = return . groupID
     getPollTimeoutMicroseconds  = return . pollTimeoutMicroseconds
     getMaximumMessageFrequency  = return . maximumMessageFrequency
     getSession                  = return . session
