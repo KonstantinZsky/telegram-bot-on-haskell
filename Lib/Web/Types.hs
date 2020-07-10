@@ -17,19 +17,25 @@ data TelegramSupportData = TelegramSupportData Chat_id deriving (Show, Eq, Gener
 
 instance Hashable TelegramSupportData where
 
-data TelegramBotData = TelegramBotData { ok :: Bool, result :: [BotMessage TelegramSupportData]} deriving (Show, Generic)    
+data TelegramBotData = TelegramBotData { ok :: Bool, result :: [TelegramBotMessage]} deriving (Show, Generic)    
+
+data TelegramBotMessage = TelegramBotMessage MessageType TelegramSupportData Update_id | UnknownMessageTG Text deriving (Show, Generic) 
 
 -- VK types
 
 data Vkontakte
 
-data GetLongPollServer = GetLongPollServer { key :: Text, server :: Text, ts :: Integer} 
+type User_id = Integer 
 
-data VKSupportData = VKSupportData deriving (Show, Eq, Generic) -- SupportData, not implemented yet
+data GetLongPollServer = GetLongPollServer { key :: Text, server :: Text, tsGP :: Integer} 
+
+data VKSupportData = VKSupportData User_id deriving (Show, Eq, Generic)
 
 instance Hashable VKSupportData where
 
-data VKBotData = VKBotData -- not implemented yet
+data VKBotData = VKBotData { ts :: Text, updates :: [VKBotMessage]} deriving (Show, Generic)
+
+data VKBotMessage = VKBotMessage MessageType VKSupportData | UnknownMessageVK Text deriving (Show, Generic)
 
 -- Mutual types 
 
@@ -38,7 +44,7 @@ data MessageType = MessageText Text | Callback Integer deriving (Show, Eq, Gener
 
 type Update_id = Integer
 
-data BotMessage a = BotMessage MessageType a Update_id | UnknownMessage Text deriving (Show, Eq, Generic) -- a = SupportData
+data BotMessage a = BotMessage MessageType a deriving (Show, Eq, Generic) -- a = SupportData
 
     -- prepacked data
 data AnswerType = AnswerInfo Text | AnswerText Text | AnswerButtons | SetRepeatCount Integer deriving Show

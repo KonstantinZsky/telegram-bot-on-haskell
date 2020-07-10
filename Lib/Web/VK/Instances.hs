@@ -13,6 +13,9 @@ import Control.Monad (when)
 import Control.Lens ((^?))
 import Data.Aeson
 import Data.Aeson.QQ
+import System.Random
+import Data.Int
+
 
 import qualified Server.Monad   as S
 import qualified Env as E
@@ -40,6 +43,10 @@ instance MonadWeb (ReaderT (E.Env WebT.Vkontakte) IO) where
         s <- getSession
         liftIO $ Sess.post s conStr json
         -- {$server}?act=a_check&key={$key}&ts={$ts}&wait=25
+    post_simple str = do
+        let conStr =  "https://api.vk.com/method/messages.send"
+        s <- getSession
+        liftIO $ Sess.get s (conStr <> str)
     checkConnection = do
         b <- T.unpack <$> S.getBotToken
         g <- show <$> S.getGroupID 
@@ -55,36 +62,44 @@ instance MonadWeb (ReaderT (E.Env WebT.Vkontakte) IO) where
         case bot_data of
             (Left err) -> errorThrow $ "Cant get vkontakte long poll server credentials. Error while parsing server answer: " <> 
                                             T.pack err
-            (Right (WebT.GetLongPollServer {WebT.key = key, WebT.server = server, WebT.ts = ts})) -> do
+            (Right (WebT.GetLongPollServer {WebT.key = key, WebT.server = server, WebT.tsGP = ts})) -> do
                 S.setSupportDataString $ server <> "?act=a_check&key=" <> key
                 S.setUpdateID ts
 
 instance InputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKBotData WebT.VKSupportData where
     decode str = return $ eitherDecode str
-    messageStatus (WebT.TelegramBotData {WebT.ok = ok, WebT.result = result}) = 
-        if ok then return (ok,"") else return (False, "Telegram response - not ok, message: " <> (T.pack $ show result))
-    messageData (WebT.TelegramBotData {WebT.result = result}) = return $ func result where
-        func [] = ([],[],[])
-        func (x:xs) = let (a,b,c) = func xs in case x of
-            (WebT.UnknownMessage txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
-            bmsg@(WebT.BotMessage _ _ upid) -> (a, upid:b, bmsg:c)
+    messageStatus _ = return (True,"")
+    messageData vkbd@(WebT.VKBotData {WebT.ts = tsBD, WebT.updates = updates}) = do
+        ts <- catchLogRethrow ("Wrong vkontakte response, can't read value of ts: " <> (T.pack $ show vkbd)) 
+            (return $ read $ T.unpack tsBD)
+        return $ (\(a,b) -> (a,(Just ts),b)) $ func updates where
+            func [] = ([],[])
+            func (x:xs) = let (a,c) = func xs in case x of
+                (WebT.UnknownMessageVK txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,c)
+                (WebT.VKBotMessage mt sd) -> (a, (WebT.BotMessage mt sd):c)
 
-instance (HashTable (WebT.HashMapKey WebT.TelegramSupportData) WebT.HashMapData ~ hashmap) => 
-    SortingHashMap (ReaderT (E.Env WebT.Telegram) IO) hashmap WebT.TelegramSupportData where
-    createHashMap = liftIO $ H.new
-    alter ref k f = liftIO $ H.mutate ref k ((\a -> (a,())) . f)
-    toList ref = liftIO $ H.toList ref
-
-instance OutputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramSupportData where
+instance OutputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKSupportData where
     handleMessage (hk, hd) = do
         askRepeatMsg <- S.getRepeateQuestion
+        b <- S.getBotToken
+        g <- liftIO newStdGen
+        let random_id = fst (randomR (1, maxBound) g :: (Int64, StdGen))
         let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: 1},{text: "2", callback_data: 2},{text: "3", callback_data: 3},{text: "4", callback_data: 4},{text: "5", callback_data: 5}]]}  |] :: Value
         let dt = case hk of 
-                (WebT.Key (WebT.TelegramSupportData chatID) WebT.FlagText)    -> case hd of
-                    (WebT.DataText outTxt)     -> object ["chat_id" .= chatID, "text" .= outTxt]
-                    WebT.Empty                 -> object ["chat_id" .= chatID, "text" .= ("" :: T.Text)]        
-                (WebT.Key (WebT.TelegramSupportData chatID) WebT.FlagButtons) -> 
-                    object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
-        post dt -- ignoring social network answer for now
+                (WebT.Key (WebT.VKSupportData userID) WebT.FlagText)    -> case hd of
+                    (WebT.DataText outTxt)     -> "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack outTxt <> "&access_token=" <> T.unpack b <> "&v=5.120" --object ["user_id" .= userID, "message" .= outTxt, "access_token" .= b, "v" .= ("5.120" :: T.Text)]
+                    WebT.Empty                 -> "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack "azaza" <> "&access_token=" <> T.unpack b <> "&v=5.120" --object ["user_id" .= userID, "message" .= ("" :: T.Text), "access_token" .= b, "v" .= ("5.120" :: T.Text)]        
+                (WebT.Key (WebT.VKSupportData userID) WebT.FlagButtons) -> 
+                    undefined -- not implemented yet
+                    --object ["chat_id" .= userID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
+        r <- post_simple dt
+        --r <- post dt -- ignoring social network answer for now
+        debug $ T.pack $ show r
         return ()
+
+instance (HashTable (WebT.HashMapKey WebT.VKSupportData) WebT.HashMapData ~ hashmap) => 
+    SortingHashMap (ReaderT (E.Env WebT.Vkontakte) IO) hashmap WebT.VKSupportData where
+    createHashMap = liftIO $ H.new
+    alter ref k f = liftIO $ H.mutate ref k ((\a -> (a,())) . f)
+    toList ref = liftIO $ H.toList ref        
                 

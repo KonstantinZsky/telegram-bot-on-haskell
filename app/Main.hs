@@ -40,13 +40,10 @@ main = do
                     env <- E.initEnv fileHandle cfg
                     runReaderT S.runServer (env :: E.Env W.Telegram)
                     hClose fileHandle
-                VK -> undefined
-                {- do
+                VK ->  do
                     env <- E.initEnv fileHandle cfg
                     runReaderT S.runServer (env :: E.Env W.Vkontakte)
-                    hClose fileHandle
-                -}
-                
+                    hClose fileHandle                
                 )
     
     

@@ -28,10 +28,12 @@ prepareOutput :: (Monad m, E.MonadError m, L.MonadLog m, S.MonadServer m, W.Inpu
 prepareOutput botD processing = do
     (ok, errMsg) <- W.messageStatus botD
     when (not ok) $ E.errorThrow errMsg
-    (warnings, upids, answersRaw) <- W.messageData botD
-    let answers = [W.BotAnswer (processing mesD) $ supD | W.BotMessage mesD supD _ <- answersRaw]
+    (warnings, upid, answersRaw) <- W.messageData botD
+    let answers = [W.BotAnswer (processing mesD) $ supD | W.BotMessage mesD supD <- answersRaw]
     mapM_ (\txt -> L.warning txt) warnings
-    when (upids /= []) $ S.setUpdateID $ 1 + maximum upids
+    case upid of
+        (Just val)  -> S.setUpdateID val 
+        Nothing     -> return ()
     L.debug $ T.pack $ show answers
     return answers
 

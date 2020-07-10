@@ -37,6 +37,7 @@ dependencies:
 - bytestring
 - hashtables
 - hashable
+- random
 
 library:
   source-dirs: Lib

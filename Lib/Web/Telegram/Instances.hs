@@ -48,17 +48,12 @@ instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData We
     decode str = return $ eitherDecode str
     messageStatus (WebT.TelegramBotData {WebT.ok = ok, WebT.result = result}) = 
         if ok then return (ok,"") else return (False, "Telegram response - not ok, message: " <> (T.pack $ show result))
-    messageData (WebT.TelegramBotData {WebT.result = result}) = return $ func result where
+    messageData (WebT.TelegramBotData {WebT.result = result}) = return $ processResult $ func result where
+        processResult (a,b,c) = (a, if b == [] then Nothing else Just (1 + maximum b), c)
         func [] = ([],[],[])
         func (x:xs) = let (a,b,c) = func xs in case x of
-            (WebT.UnknownMessage txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
-            bmsg@(WebT.BotMessage _ _ upid) -> (a, upid:b, bmsg:c)
-
-instance (HashTable (WebT.HashMapKey WebT.TelegramSupportData) WebT.HashMapData ~ hashmap) => 
-    SortingHashMap (ReaderT (E.Env WebT.Telegram) IO) hashmap WebT.TelegramSupportData where
-    createHashMap = liftIO $ H.new
-    alter ref k f = liftIO $ H.mutate ref k ((\a -> (a,())) . f)
-    toList ref = liftIO $ H.toList ref
+            (WebT.UnknownMessageTG txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
+            (WebT.TelegramBotMessage mt td upid) -> (a, upid:b, (WebT.BotMessage mt td):c)
 
 instance OutputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramSupportData where
     handleMessage (hk, hd) = do
@@ -72,3 +67,9 @@ instance OutputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramSupportDa
                     object ["chat_id" .= chatID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
         post dt -- ignoring social network answer for now
         return ()
+
+instance (HashTable (WebT.HashMapKey WebT.TelegramSupportData) WebT.HashMapData ~ hashmap) => 
+    SortingHashMap (ReaderT (E.Env WebT.Telegram) IO) hashmap WebT.TelegramSupportData where
+    createHashMap = liftIO $ H.new
+    alter ref k f = liftIO $ H.mutate ref k ((\a -> (a,())) . f)
+    toList ref = liftIO $ H.toList ref        

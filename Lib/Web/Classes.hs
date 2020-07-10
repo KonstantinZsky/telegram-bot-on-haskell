@@ -16,6 +16,8 @@ class Monad m => MonadWeb m where
     getSession              :: m Sess.Session
     get                     :: m ByteString
     post                    :: Value -> m (Response ByteString)
+    post_simple             :: String -> m (Response ByteString)
+    post_simple = undefined 
     checkConnection         :: m () 
 
 type ParsingError = T.Text
@@ -25,7 +27,7 @@ type Update_id = Integer
 class Monad m => InputBotData m a b | m -> a, m -> b where
     decode :: ByteString -> m (Either String a)
     messageStatus   :: a -> m (Bool, T.Text)
-    messageData     :: (Hashable b) => a -> m ([ParsingError],[Update_id],[Types.BotMessage b])
+    messageData     :: (Hashable b) => a -> m ([ParsingError],Maybe Update_id,[Types.BotMessage b])
 
 class (Monad m, Hashable b) => SortingHashMap m a b | m -> a, m -> b where
     createHashMap :: m a
