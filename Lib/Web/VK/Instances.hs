@@ -20,6 +20,7 @@ import Data.Int
 import qualified Server.Monad   as S
 import qualified Env as E
 import qualified Web.Types as WebT
+import qualified Web.VK.Templates as Templates
 import Config.Mode (Mode(..))
 import Web.Classes (MonadWeb(..), InputBotData(..), SortingHashMap(..), OutputBotData(..))
 import Web.VK.Parsing
@@ -83,15 +84,15 @@ instance OutputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKSupportData wh
         askRepeatMsg <- S.getRepeateQuestion
         b <- S.getBotToken
         g <- liftIO newStdGen
+        rm <- S.getRepeateQuestion
         let random_id = fst (randomR (1, maxBound) g :: (Int64, StdGen))
-        let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: 1},{text: "2", callback_data: 2},{text: "3", callback_data: 3},{text: "4", callback_data: 4},{text: "5", callback_data: 5}]]}  |] :: Value
+        --let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: 1},{text: "2", callback_data: 2},{text: "3", callback_data: 3},{text: "4", callback_data: 4},{text: "5", callback_data: 5}]]}  |] :: Value
         let dt = case hk of 
                 (WebT.Key (WebT.VKSupportData userID) WebT.FlagText)    -> case hd of
                     (WebT.DataText outTxt)     -> "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack outTxt <> "&access_token=" <> T.unpack b <> "&v=5.120" --object ["user_id" .= userID, "message" .= outTxt, "access_token" .= b, "v" .= ("5.120" :: T.Text)]
                     WebT.Empty                 -> "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack "azaza" <> "&access_token=" <> T.unpack b <> "&v=5.120" --object ["user_id" .= userID, "message" .= ("" :: T.Text), "access_token" .= b, "v" .= ("5.120" :: T.Text)]        
                 (WebT.Key (WebT.VKSupportData userID) WebT.FlagButtons) -> 
-                    undefined -- not implemented yet
-                    --object ["chat_id" .= userID, "text" .= askRepeatMsg, "reply_markup" .= buttons]
+                    "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack rm <> "&keyboard=" <> Templates.buttons_string <> "&access_token=" <> T.unpack b <> "&v=5.120"
         r <- post_simple dt
         --r <- post dt -- ignoring social network answer for now
         debug $ T.pack $ show r

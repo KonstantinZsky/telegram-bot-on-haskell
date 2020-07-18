@@ -27,6 +27,6 @@ instance FromJSON TelegramBotMessage where
             --callback_data <- cbq .: "data"
             upid <- o .: "update_id"
             return $ TelegramBotMessage (Callback callback_data) (TelegramSupportData chid) upid,
-            return $ UnknownMessageTG $ pack $ show o]
+            return $ UnknownMessageTG $ pack $ show $ encode o]
 
 

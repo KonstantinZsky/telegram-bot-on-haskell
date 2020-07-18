@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7ca22976d6d164a59a5414671eb2334d416c5c003a1db28143b13825dffd623b
+-- hash: 8028e9b60f61025b86fb670571561fe33081847d23d1ffb0dc66594b2567358a
 
 name:           telegram-bot-on-haskell
 version:        0.1.0.0
@@ -48,6 +48,7 @@ library
       Web.Types
       Web.VK.Instances
       Web.VK.Parsing
+      Web.VK.Templates
   other-modules:
       Paths_telegram_bot_on_haskell
   hs-source-dirs:
