@@ -6,7 +6,7 @@ import qualified Data.Text as T
 
 import Data.ByteString.Lazy (ByteString)
 import Network.HTTP.Client (Response)
-import Data.Aeson (Value)
+import Data.Aeson (Value, object)
 import Data.Hashable (Hashable)
 import qualified Network.Wreq.Session as Sess
 
@@ -17,7 +17,7 @@ class Monad m => MonadWeb m where
     get                     :: m ByteString
     post                    :: Value -> m (Response ByteString)
     post_simple             :: String -> m (Response ByteString)
-    post_simple = undefined 
+    post_simple _ = post $ object [] 
     checkConnection         :: m () 
 
 type ParsingError = T.Text

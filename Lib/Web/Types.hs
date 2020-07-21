@@ -27,7 +27,7 @@ data Vkontakte
 
 type User_id = Integer 
 
-data GetLongPollServer = GetLongPollServer { key :: Text, server :: Text, tsGP :: Integer} 
+data GetLongPollServer = GetLongPollServer { key :: Text, server :: Text, tsGP :: Integer}
 
 data VKSupportData = VKSupportData User_id deriving (Show, Eq, Generic)
 

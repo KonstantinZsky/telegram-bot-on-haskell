@@ -3,6 +3,7 @@ module Web.Telegram.Parsing where
 import Data.Aeson
 import Data.Text (Text, pack, unpack)
 import Data.Foldable (asum)
+import Text.Read (readEither)
 
 import Web.Types
 
@@ -23,10 +24,12 @@ instance FromJSON TelegramBotMessage where
             chat <- message .: "chat"
             chid <- chat .: "id" 
             callback_data_raw <- cbq .: "data" 
-            let callback_data = read callback_data_raw
-            --callback_data <- cbq .: "data"
             upid <- o .: "update_id"
-            return $ TelegramBotMessage (Callback callback_data) (TelegramSupportData chid) upid,
+            let callback_data = readEither callback_data_raw
+            case callback_data of
+                (Right x) -> return $ TelegramBotMessage (Callback x) (TelegramSupportData chid) upid
+                (Left msg) -> return $ UnknownMessageTG $ "Can't parse \"callback_data\": " <> (pack msg) <> " Whole message: " <> 
+                    (pack $ show $ encode o),
             return $ UnknownMessageTG $ pack $ show $ encode o]
 
 

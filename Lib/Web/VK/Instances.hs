@@ -16,7 +16,6 @@ import Data.Aeson.QQ
 import System.Random
 import Data.Int
 
-
 import qualified Server.Monad   as S
 import qualified Env as E
 import qualified Web.Types as WebT
@@ -62,7 +61,7 @@ instance MonadWeb (ReaderT (E.Env WebT.Vkontakte) IO) where
         let bot_data = (eitherDecode json_body :: Either String WebT.GetLongPollServer)
         case bot_data of
             (Left err) -> errorThrow $ "Cant get vkontakte long poll server credentials. Error while parsing server answer: " <> 
-                                            T.pack err
+                                            T.pack err <> ". Exiting program."
             (Right (WebT.GetLongPollServer {WebT.key = key, WebT.server = server, WebT.tsGP = ts})) -> do
                 S.setSupportDataString $ server <> "?act=a_check&key=" <> key
                 S.setUpdateID ts
@@ -76,7 +75,7 @@ instance InputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKBotData WebT.VK
         return $ (\(a,b) -> (a,(Just ts),b)) $ func updates where
             func [] = ([],[])
             func (x:xs) = let (a,c) = func xs in case x of
-                (WebT.UnknownMessageVK txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,c)
+                (WebT.UnknownMessageVK txt) -> (("Unknown format of vkontakte message, will be ignored: " <> txt):a,c)
                 (WebT.VKBotMessage mt sd) -> (a, (WebT.BotMessage mt sd):c)
 
 instance OutputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKSupportData where
@@ -86,13 +85,15 @@ instance OutputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKSupportData wh
         g <- liftIO newStdGen
         rm <- S.getRepeateQuestion
         let random_id = fst (randomR (1, maxBound) g :: (Int64, StdGen))
-        --let buttons = [aesonQQ| {inline_keyboard: [[{text: "1", callback_data: 1},{text: "2", callback_data: 2},{text: "3", callback_data: 3},{text: "4", callback_data: 4},{text: "5", callback_data: 5}]]}  |] :: Value
         let dt = case hk of 
                 (WebT.Key (WebT.VKSupportData userID) WebT.FlagText)    -> case hd of
-                    (WebT.DataText outTxt)     -> "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack outTxt <> "&access_token=" <> T.unpack b <> "&v=5.120" --object ["user_id" .= userID, "message" .= outTxt, "access_token" .= b, "v" .= ("5.120" :: T.Text)]
-                    WebT.Empty                 -> "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack "azaza" <> "&access_token=" <> T.unpack b <> "&v=5.120" --object ["user_id" .= userID, "message" .= ("" :: T.Text), "access_token" .= b, "v" .= ("5.120" :: T.Text)]        
+                    (WebT.DataText outTxt)     -> 
+                        "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack outTxt <> 
+                        "&access_token=" <> T.unpack b <> "&v=5.120"
+                    WebT.Empty                 -> "" -- wrong case, shouldnt be possible      
                 (WebT.Key (WebT.VKSupportData userID) WebT.FlagButtons) -> 
-                    "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack rm <> "&keyboard=" <> Templates.buttons_string <> "&access_token=" <> T.unpack b <> "&v=5.120"
+                    "?user_id=" <> (show userID :: [Char]) <> "&random_id=" <> show random_id <> "&message=" <> T.unpack rm <> 
+                    "&keyboard=" <> Templates.buttons_string <> "&access_token=" <> T.unpack b <> "&v=5.120"
         r <- post_simple dt
         --r <- post dt -- ignoring social network answer for now
         debug $ T.pack $ show r
