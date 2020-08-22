@@ -15,8 +15,9 @@ import qualified Web            as W
 import qualified Logger         as L
 import qualified Server.Monad   as S
 import qualified Control.Exception.Extends as E
+import qualified Testing.TestErrorThrow as Test
 
-parseInput :: (Monad m, W.MonadWeb m, E.MonadError m, W.InputBotData m a b) => ByteString -> m a
+parseInput :: (Monad m, W.MonadWeb m, E.MonadError m, W.InputBotData m a b, Test.TestErrorThrow a) => ByteString -> m a
 parseInput input = do 
     bot_data <- W.decode input
     case bot_data of
@@ -66,6 +67,7 @@ packOutput answers = do
 sendMessages :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadTime m, W.MonadWeb m, W.OutputBotData m b) => 
                     [(W.HashMapKey b, W.HashMapData)] -> m ()
 sendMessages packedMessages = do
+    when (length packedMessages == 0) (L.info "Nothing to output")
     cpuTime <- S.getCpuTime
     sendMessagesCycle packedMessages $ cpuTime - secondsToCPU 1
     return ()

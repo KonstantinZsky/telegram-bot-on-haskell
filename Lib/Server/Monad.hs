@@ -49,7 +49,3 @@ class Monad m => MonadTime m where
 instance (MonadIO m, Monad m) => MonadTime (ReaderT env m) where
     timeout = liftIO . threadDelay
     getCpuTime = liftIO getCPUTime
-
-instance Monad m => MonadTime (StateT env m) where -- used for testing
-    timeout s = return ()
-    getCpuTime = return 0

@@ -21,7 +21,7 @@ import qualified Env as E
 import qualified Web.Types as WebT
 import qualified Web.VK.Templates as Templates
 import Config.Mode (Mode(..))
-import Web.Classes (MonadWeb(..), InputBotData(..), SortingHashMap(..), OutputBotData(..))
+import Web.Classes
 import Web.VK.Parsing
 import Control.Exception.Extends (catchLogRethrow, errorThrow)
 import Logger (debug)
@@ -66,17 +66,17 @@ instance MonadWeb (ReaderT (E.Env WebT.Vkontakte) IO) where
                 S.setSupportDataString $ server <> "?act=a_check&key=" <> key
                 S.setUpdateID ts
 
-instance InputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKBotData WebT.VKSupportData where
-    decode str = return $ eitherDecode str
-    messageStatus _ = return (True,"")
-    messageData vkbd@(WebT.VKBotData {WebT.ts = tsBD, WebT.updates = updates}) = do
-        ts <- catchLogRethrow ("Wrong vkontakte response, can't read value of ts: " <> (T.pack $ show vkbd)) 
-            (return $ read $ T.unpack tsBD)
-        return $ (\(a,b) -> (a,(Just ts),b)) $ func updates where
+instance InputBotDataUnwraped WebT.VKBotData WebT.VKSupportData where
+    decodeUnwraped str = eitherDecode str
+    messageStatusUnwraped _ = (True,"")
+    messageDataUnwraped vkbd@(WebT.VKBotData {WebT.ts = ts, WebT.updates = updates}) =
+        (\(a,b) -> (a,(Just ts),b)) $ func updates where
             func [] = ([],[])
             func (x:xs) = let (a,c) = func xs in case x of
                 (WebT.UnknownMessageVK txt) -> (("Unknown format of vkontakte message, will be ignored: " <> txt):a,c)
-                (WebT.VKBotMessage mt sd) -> (a, (WebT.BotMessage mt sd):c)
+                (WebT.VKBotMessage mt sd) -> (a, (WebT.BotMessage mt sd):c)    
+
+instance InputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKBotData WebT.VKSupportData
 
 instance OutputBotData (ReaderT (E.Env WebT.Vkontakte) IO) WebT.VKSupportData where
     handleMessage (hk, hd) = do

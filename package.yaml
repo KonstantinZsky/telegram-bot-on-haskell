@@ -37,7 +37,9 @@ dependencies:
 - bytestring
 - hashtables
 - hashable
+- hashmap
 - random
+- mtl
 
 library:
   source-dirs: Lib

@@ -1,4 +1,4 @@
-module Logger (MonadLog (debug, info, warning, error))where
+module Logger (MonadLog (..))where
 
 import Control.Monad.Trans.Reader (ReaderT(..))
 import Control.Monad (when)

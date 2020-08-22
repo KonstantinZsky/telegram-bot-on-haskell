@@ -13,8 +13,9 @@ import qualified Web            as W
 import qualified Web.Types      as W
 import qualified Web.Parsing    as P
 import qualified Control.Exception.Extends as E
+import qualified Testing.TestErrorThrow as Test
 
-runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m,
+runServer :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m, Test.TestErrorThrow a,
     W.InputBotData m a b, W.SortingHashMap m h b, W.OutputBotData m b, Hashable b, Show b) => m ()
 runServer = do
     W.checkConnection
@@ -31,20 +32,20 @@ runServer = do
         S.setCpuTimestamp
         cycle_step
 
-cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m, 
+cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m, Test.TestErrorThrow a,
     W.InputBotData m a b, W.SortingHashMap m h b, W.OutputBotData m b, Hashable b, Show b) => m ()
 cycle_step = do
     jsonBody <- W.get
-    botData <- P.parseInput jsonBody
-    helpMsg <- S.getHelpMessage
+    botData <- P.parseInput jsonBody  
+    helpMsg <- S.getHelpMessage     
     --L.debug $ T.pack $ show botData
     let messageHandling mType = case mType of
             (W.MessageText "/help")     -> W.AnswerInfo helpMsg
             (W.MessageText "/repeat")   -> W.AnswerButtons
             (W.Callback x)              -> W.SetRepeatCount x
-            (W.MessageText txt)         -> W.AnswerText txt
-    forPacking <- P.prepareOutput botData messageHandling
-    forSending <- P.packOutput forPacking
+            (W.MessageText txt)         -> W.AnswerText txt        
+    forPacking <- P.prepareOutput botData messageHandling       
+    forSending <- P.packOutput forPacking  
     P.sendMessages forSending
 
       

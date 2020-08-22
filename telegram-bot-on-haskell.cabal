@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8028e9b60f61025b86fb670571561fe33081847d23d1ffb0dc66594b2567358a
+-- hash: 2f7e8cb117a9d7809f58df987bc29b8f2fd35ff48b24e272047283adc1ff10f9
 
 name:           telegram-bot-on-haskell
 version:        0.1.0.0
@@ -40,6 +40,7 @@ library
       Logger.Verbosity
       Server
       Server.Monad
+      Testing.TestErrorThrow
       Web
       Web.Classes
       Web.Parsing
@@ -62,9 +63,11 @@ library
     , configurator
     , directory
     , hashable
+    , hashmap
     , hashtables
     , http-client
     , lens
+    , mtl
     , random
     , text
     , time
@@ -88,9 +91,11 @@ executable telegram-bot-on-haskell-exe
     , configurator
     , directory
     , hashable
+    , hashmap
     , hashtables
     , http-client
     , lens
+    , mtl
     , random
     , telegram-bot-on-haskell
     , text
@@ -103,6 +108,15 @@ test-suite telegram-bot-on-haskell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TestInputsTelegram
+      TestInputsVK
+      TestInstances.Env
+      TestInstances.Logger
+      TestInstances.MonadError
+      TestInstances.Server
+      TestInstances.TestRun
+      TestInstances.Web
+      TestInstances.Web.Types
       Paths_telegram_bot_on_haskell
   hs-source-dirs:
       test
@@ -116,9 +130,11 @@ test-suite telegram-bot-on-haskell-test
     , configurator
     , directory
     , hashable
+    , hashmap
     , hashtables
     , http-client
     , lens
+    , mtl
     , random
     , telegram-bot-on-haskell
     , text

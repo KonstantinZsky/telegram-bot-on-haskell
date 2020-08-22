@@ -12,7 +12,19 @@ import qualified Data.Text as T
 
 import Web.Types
 
-instance FromJSON VKBotData
+instance FromJSON VKBotData where
+    parseJSON = withObject "VKBotData" $ \o -> 
+        asum[   do
+            --object <- o .: "object"
+            ts_raw <- o .: "ts"
+            updates <- o .: "updates"
+            let ts = readEither ts_raw
+            case ts of 
+                (Right x) -> return VKBotData {ts = x, updates = updates}
+                (Left msg) -> fail $ "Can't parse ts: " <> msg <> " Whole message: " <> (show $ encode o),
+            fail $ show $ encode o                
+            ]
+
 
 instance FromJSON VKBotMessage where
     parseJSON = withObject "message" $ \o ->
@@ -42,7 +54,7 @@ instance FromJSON GetLongPollServer where
             let ts = readEither ts_raw
             case ts of 
                 (Right x) -> return GetLongPollServer { key = key, server = server, tsGP = x }
-                (Left msg) -> fail $ "Parsing problems: " <> msg <> " Whole message: " <> (show $ encode o),
+                (Left msg) -> fail $ "Can't parse ts: " <> msg <> " Whole message: " <> (show $ encode o),
             fail $ show $ encode o
             ]
 

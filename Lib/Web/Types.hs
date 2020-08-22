@@ -13,7 +13,7 @@ data Telegram
                   
 type Chat_id = Integer                  
 
-data TelegramSupportData = TelegramSupportData Chat_id deriving (Show, Eq, Generic) -- SupportData
+data TelegramSupportData = TelegramSupportData Chat_id deriving (Show, Eq, Ord, Generic) -- SupportData
 
 instance Hashable TelegramSupportData where
 
@@ -29,11 +29,11 @@ type User_id = Integer
 
 data GetLongPollServer = GetLongPollServer { key :: Text, server :: Text, tsGP :: Integer}
 
-data VKSupportData = VKSupportData User_id deriving (Show, Eq, Generic)
+data VKSupportData = VKSupportData User_id deriving (Show, Eq, Ord, Generic)
 
 instance Hashable VKSupportData where
 
-data VKBotData = VKBotData { ts :: Text, updates :: [VKBotMessage]} deriving (Show, Generic)
+data VKBotData = VKBotData { ts :: Integer, updates :: [VKBotMessage]} deriving (Show, Generic)
 
 data VKBotMessage = VKBotMessage MessageType VKSupportData | UnknownMessageVK Text deriving (Show, Generic)
 
@@ -52,11 +52,11 @@ data AnswerType = AnswerInfo Text | AnswerText Text | AnswerButtons | SetRepeatC
 data BotAnswer a = BotAnswer AnswerType a deriving Show-- a = SupportData
 
     -- packed data
-data KeyFlag = FlagText | FlagButtons deriving (Show, Eq, Generic)
+data KeyFlag = FlagText | FlagButtons deriving (Show, Eq, Ord, Generic)
 
 instance Hashable KeyFlag where
 
-data HashMapKey a = Key a KeyFlag deriving (Show, Eq, Generic) -- a = SupportData
+data HashMapKey a = Key a KeyFlag deriving (Show, Eq, Ord, Generic) -- a = SupportData
 
 instance (Hashable a) => Hashable (HashMapKey a) where -- a = SupportData
 

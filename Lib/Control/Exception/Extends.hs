@@ -9,10 +9,11 @@ import Control.Monad.Trans.Reader
 
 import qualified Logger             as L
 import Env
+import Testing.TestErrorThrow
 
 class Monad m => MonadError m where 
     catchLogRethrow     :: T.Text -> m a -> m a
-    errorThrow          :: T.Text -> m a
+    errorThrow          :: TestErrorThrow a => T.Text -> m a
 
 instance MonadError (ReaderT (Env a) IO) where -- logging with error text 
     catchLogRethrow msg action = ReaderT $ \r -> E.catch (runReaderT action r) (\err -> runReaderT (

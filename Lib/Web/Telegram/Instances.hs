@@ -17,7 +17,7 @@ import qualified Server.Monad   as S
 import qualified Env as E
 import qualified Web.Types as WebT
 import Config.Mode (Mode(..))
-import Web.Classes (MonadWeb(..), InputBotData(..), SortingHashMap(..), OutputBotData(..))
+import Web.Classes
 import Web.Telegram.Parsing
 import Control.Exception.Extends (catchLogRethrow)
 import Logger (debug)
@@ -44,8 +44,19 @@ instance MonadWeb (ReaderT (E.Env WebT.Telegram) IO) where
         r <- catchLogRethrow "Can not connect to the telegram bot. Possibly wrong token. Exiting program." get
         debug $ T.pack $ show r
 
+instance InputBotDataUnwraped WebT.TelegramBotData WebT.TelegramSupportData where
+    decodeUnwraped str = eitherDecode str
+    messageStatusUnwraped (WebT.TelegramBotData {WebT.ok = ok, WebT.result = result}) = 
+        if ok then (ok,"") else (False, "Telegram response - not ok, message: " <> (T.pack $ show result))
+    messageDataUnwraped (WebT.TelegramBotData {WebT.result = result}) = processResult $ func result where
+        processResult (a,b,c) = (a, if b == [] then Nothing else Just (1 + maximum b), c)
+        func [] = ([],[],[])
+        func (x:xs) = let (a,b,c) = func xs in case x of
+            (WebT.UnknownMessageTG txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
+            (WebT.TelegramBotMessage mt td upid) -> (a, upid:b, (WebT.BotMessage mt td):c)
+
 instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData WebT.TelegramSupportData where
-    decode str = return $ eitherDecode str
+    {-decode str = return $ eitherDecode str
     messageStatus (WebT.TelegramBotData {WebT.ok = ok, WebT.result = result}) = 
         if ok then return (ok,"") else return (False, "Telegram response - not ok, message: " <> (T.pack $ show result))
     messageData (WebT.TelegramBotData {WebT.result = result}) = return $ processResult $ func result where
@@ -53,7 +64,7 @@ instance InputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramBotData We
         func [] = ([],[],[])
         func (x:xs) = let (a,b,c) = func xs in case x of
             (WebT.UnknownMessageTG txt) -> (("Unknown format of telegram message, will be ignored: " <> txt):a,b,c)
-            (WebT.TelegramBotMessage mt td upid) -> (a, upid:b, (WebT.BotMessage mt td):c)
+            (WebT.TelegramBotMessage mt td upid) -> (a, upid:b, (WebT.BotMessage mt td):c) -}
 
 instance OutputBotData (ReaderT (E.Env WebT.Telegram) IO) WebT.TelegramSupportData where
     handleMessage (hk, hd) = do
