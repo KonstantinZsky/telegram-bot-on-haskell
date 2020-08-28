@@ -1,6 +1,6 @@
 # Telegram (and VKontakte) bot on haskell
 
-Simple bot made for testing haskell capabilities. No multithreading or multicore. Can work with telegram or vkontakte one at a time.
+Simple bot made for testing out haskell. No multithreading or multicore. Can work with telegram or vkontakte one at a time.
 
 ## Bot capabilities
 
@@ -9,7 +9,7 @@ Simple bot made for testing haskell capabilities. No multithreading or multicore
    - Bot can repeat message multiple times when answering. This is configured with the commands.
 2. Commands
    - `/help` - shows information about the bot. Message is set in config.
-   - `/repeat` - calls keyboard to select the number of repeats in the response.
+   - `/repeat` - calls keyboard to select the number of repeats in the response. It can be numbers from 1 to 5.
      - VK:
      
          <img src="readme%20images/Repeat_Telegram.jpg" width="500" >
@@ -17,3 +17,5 @@ Simple bot made for testing haskell capabilities. No multithreading or multicore
      - Telegram:
      
          <img src="readme%20images/Repeat_VK.jpg" width="500" >
+
+## Bot 
