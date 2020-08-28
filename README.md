@@ -10,4 +10,10 @@ Simple bot made for testing haskell capabilities. No multithreading or multicore
 2. Commands
    - `/help` - shows information about the bot. Message is set in config.
    - `/repeat` - calls keyboard to select the number of repeats in the response.
-     - VK : 
+     - VK:
+     
+         <img src="readme%20images/Repeat_Telegram.jpg" width="500" >
+     
+     - Telegram:
+     
+         <img src="readme%20images/Repeat_VK.jpg" width="500" >
