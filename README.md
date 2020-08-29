@@ -8,6 +8,7 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
   - [Software requirements](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#software-requirements)
   - [Getting bot executable](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#getting-bot-executable)
   - [Running bot executable](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#running-bot-executable)
+  - [Client part of the bot](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#client-part-of-the-bot)
 - [Config](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#config)
 
 ## Bot capabilities
@@ -40,16 +41,62 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
 
 1. Copy this project to your computer using git: `$ git clone git@github.com:KonstantinZsky/telegram-bot-on-haskell.git`.  
 
-2. Open project folder in your terminal. 
+2. Open project folder in the terminal. 
    - Build the project using stack: `stack build`. [How to use stack](https://docs.haskellstack.org/en/stable/GUIDE/)
    - Make executable using stack: `stack install`.
 
       How it looks in Windows:
 
-      <img src="readme%20images/Stack_install.jpg" >
+<img src="readme%20images/Stack_install.jpg" >
 
-      Now you can see where is your executable. For me it is in `C:\Users\Konstantin\AppData\Roaming\local\bin`. Executable called `telegram-bot-on-haskell-exe.exe`.
+Now you can see where is your executable. For me it is in `C:\Users\Konstantin\AppData\Roaming\local\bin`. Executable is called `telegram-bot-on-haskell-exe.exe`.
 
 ### Running bot executable:
 
+Open executable folder in the terminal and launch exe:
+
+<img src="readme%20images/First_launch.jpg" >
+
+Bot couldn't find file config.cfg so it created default config in exe folder. Bot still cant launch because token is not specified. Token is needed to connect to the social network (VK or Telegram). It plays the role of login and password.
+
+In order to get token we must setup the client part of the bot.
+
+### Client part of the bot:
+
+Bot must have representation in the corresponding social network. It needs to have an account with whom user will communicate. Both Telegram and VKonakte have special kind of accounts designed for bots.
+
 ## Config
+
+```
+# Mode - social network to connect to: "TG" for telegram, "VK" for vkontakte. Must be in quotes.
+cMode = "TG" 
+
+# Verbosity level from wich messagies will show up, can be: "Debug", "Info", "Warning", "Error". Must be in quotes. 
+cLogVerbosity = "Debug" 
+
+# Message that will be shown after command /help. Must be in quotes. 
+cHelpMessage = "Echo bot, returns messages back to the user." 
+
+# Question that will be shown after command /repeat. Must be in quotes. 
+cRepeatQuestion = "Choose the number of bot response duplication." 
+
+# Number of duplication for bot response. 
+# Must be greater than 0. 
+cRepeatCount = 1 
+
+# Long polling timeout microseconds, 1s = 1000000. For VK must be less than 25s or connection will be lost. 
+# Must be greater than 0. 
+cPollTimeoutMicroseconds = 5000000 
+
+# Maximum message output per second. For current date (30.06.2020) it is 30 for Telegram and 20 for Vkontakte. 
+# Must be greater than 0. 
+cMaximumMessageFrequency = 20 
+
+# Bot token for connecting to the API. Must be in quotes. 
+cBotToken = "" 
+
+# Vkontakte group ID. Required only for VK mode. 
+# Must be greater than 0. 
+cGroupID = 1 
+```
+
