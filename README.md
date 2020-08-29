@@ -27,7 +27,15 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
 
 1. Copy this project to your computer using git: `$ git clone git@github.com:KonstantinZsky/telegram-bot-on-haskell.git`. [How to use git](https://git-scm.com/book/en/v2) 
 
-2. Open project folder in your terminal. Build the project using stack: `stack build`. [How to use stack](https://docs.haskellstack.org/en/stable/GUIDE/)
+2. Open project folder in your terminal. 
+   - Build the project using stack: `stack build`. [How to use stack](https://docs.haskellstack.org/en/stable/GUIDE/)
+   - Make executable using stack: `stack install`.
+
+      How it looks in windows:
+
+      <img src="readme%20images/Stack_install.jpg" >
+
+      Now you can see where is your executable. For me it is in `C:\Users\Konstantin\AppData\Roaming\local\bin`. Executable called `telegram-bot-on-haskell-exe.exe`.
 
 
 ## Config
