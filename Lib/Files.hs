@@ -17,7 +17,7 @@ checkForFile msg path content = do
         True  -> return ()
         False -> do
             L.info $ msg <> T.pack path <> "."
-            E.catchLogRethrow "Unexpected error while working with file: " $ T.writeFile "log.txt" content  
+            E.catchLogRethrow "Unexpected error while working with file: " $ T.writeFile "config.cfg" content  
 
 checkForConfig :: FilePath -> IO ()
 checkForConfig path = checkForFile "Config not found. Creating " path defaultConfigContents

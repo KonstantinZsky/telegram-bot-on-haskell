@@ -19,8 +19,8 @@ import Control.Exception.Extends (catchLogRethrow)
 
 main :: IO ()
 main = do
-    F.checkForConfig "test.cfg"
-    cfg <- catchLogRethrow "Error while reading config " (C.loadConfig "test.cfg")
+    F.checkForConfig "config.cfg"
+    cfg <- catchLogRethrow "Error while reading config " (C.loadConfig "config.cfg")
     putStrLn $ show cfg
     when (C.cBotToken cfg == "") $ do
         askUser ("Bot token is not specifed. " <> 
