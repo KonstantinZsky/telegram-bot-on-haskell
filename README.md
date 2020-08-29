@@ -5,6 +5,9 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
 ## Table of сontents
 - [Bot capabilities](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#bot-capabilities)
 - [Deploy](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#deploy)
+  - [Software requirements](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#software-requirements)
+  - [Getting bot executable](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#getting-bot-executable)
+  - [Running bot executable](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#running-bot-executable)
 - [Config](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#config)
 
 ## Bot capabilities
@@ -25,17 +28,28 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
 
 ## Deploy
 
-1. Copy this project to your computer using git: `$ git clone git@github.com:KonstantinZsky/telegram-bot-on-haskell.git`. [How to use git](https://git-scm.com/book/en/v2) 
+### Software requirements:
+    
+- git - [how to use git](https://git-scm.com/book/en/v2) 
+- haskell platform - https://www.haskell.org/platform/ which includes:
+  - stack
+  - cabal
+  - ghc
+
+### Getting bot executable:
+
+1. Copy this project to your computer using git: `$ git clone git@github.com:KonstantinZsky/telegram-bot-on-haskell.git`.  
 
 2. Open project folder in your terminal. 
    - Build the project using stack: `stack build`. [How to use stack](https://docs.haskellstack.org/en/stable/GUIDE/)
    - Make executable using stack: `stack install`.
 
-      How it looks in windows:
+      How it looks in Windows:
 
       <img src="readme%20images/Stack_install.jpg" >
 
       Now you can see where is your executable. For me it is in `C:\Users\Konstantin\AppData\Roaming\local\bin`. Executable called `telegram-bot-on-haskell-exe.exe`.
 
+### Running bot executable:
 
 ## Config
