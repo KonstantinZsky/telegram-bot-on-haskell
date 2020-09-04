@@ -69,13 +69,15 @@ Bot must have representation in the corresponding social network. It needs to ha
 
 #### Telegram
 
-It is very easy to create a bot in Telegram - https://core.telegram.org/bots. You will get token in process. To connect to Telegram you need token.
+It is very easy to create a bot in Telegram - https://core.telegram.org/bots. You will get token in process. To connect to Telegram you need a token.
 
 #### VKontakte
 
 Not so easy for Vkontakte. You must have a user account first and then you need to create a society. After that you need to customize settings of the society and get token and group ID (yes not only token but a group ID too). In order to connect to Vkontakte you need two parametrs - token and group ID.
 
 1. Create user account - https://vk.com
+
+2. Create community
 
 ## Config
 
