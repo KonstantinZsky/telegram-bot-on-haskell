@@ -9,6 +9,8 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
   - [Getting bot executable](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#getting-bot-executable)
   - [Running bot executable](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#running-bot-executable)
   - [Client part of the bot](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#client-part-of-the-bot)
+    - [Telegram](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#telegram)
+    - [VKontakte](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#vkontakte)
 - [Config](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#config)
 
 ## Bot capabilities
@@ -64,6 +66,16 @@ In order to get token we must setup the client part of the bot.
 ### Client part of the bot:
 
 Bot must have representation in the corresponding social network. It needs to have an account with whom user will communicate. Both Telegram and VKonakte have special kind of accounts designed for bots.
+
+#### Telegram
+
+It is very easy to create a bot in Telegram - https://core.telegram.org/bots. You will get token in process. To connect to Telegram you need token.
+
+#### VKontakte
+
+Not so easy for Vkontakte. You must have a user account first and then you need to create a society. After that you need to customize settings of the society and get token and group ID (yes not only token but a group ID too). In order to connect to Vkontakte you need two parametrs - token and group ID.
+
+1. Create user account - https://vk.com
 
 ## Config
 
