@@ -168,7 +168,7 @@ Now we can launch our bot.
 
 The program is written using the ReaderT pattern - https://www.fpcomplete.com/blog/2017/06/readert-design-pattern/
 
-Description and links to import modules of the project:
+Description and links to the most import modules of the project:
 
 - All variables and data is stored in an Env structure, it is specified in module  [Env](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Env.hs). Env is parameterized by mode. Mode can be Telegram or Vkontakte, these types are specified in the module [Web.Types](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Web/Types.hs).
 
