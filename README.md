@@ -12,6 +12,7 @@ Simple bot made for testing out haskell. No multithreading or multicore. Can wor
     - [Telegram](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#telegram)
     - [VKontakte](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#vkontakte)
 - [Config](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#config)
+- [Code structure](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#code-structure)
 
 ## Bot capabilities
 
@@ -118,8 +119,12 @@ Not so easy for Vkontakte. You must have a user account first and then you need 
    <img src="readme%20images/VK_society11.jpg" width="500" >
    
    In this exaple it is 198446362. Just the number without text.
+   
+Now we have all the information we need to launch the bot. Next step is to edit our config file. 
 
 ## Config
+
+When bot was launched for the first time, it created a config.cfg in its folder. Let's open it in any text editor.
 
 ```
 # Mode - social network to connect to: "TG" for telegram, "VK" for vkontakte. Must be in quotes.
@@ -154,3 +159,19 @@ cBotToken = ""
 cGroupID = 1 
 ```
 
+Comments in the config file are self-explanatory. You need to choose "mode" and specify "Bot token". For VKontakte you also need "group ID".
+Other parametrs can be unchaged.
+
+Now we can launch our bot.
+
+## Code structure
+
+The program is written using the ReaderT pattern - https://www.fpcomplete.com/blog/2017/06/readert-design-pattern/
+
+Description and links to import modules of the project:
+
+- All variables and data is stored in an Env structure, it is specified in module  [Env](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Env.hs). Env is parameterized by mode. Mode can be Telegram or Vkontakte, these types are specified in the module [Web.Types](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Web/Types.hs).
+
+- Main logic of the bot is specified in module [Server](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Server.hs). It is decoupled from IO and concrete implementations by using classes. So you can change the logic separately. You can also test your logic by making test instances of the classes.
+
+- Mode of Env affects which instances will be used to connect to the social network and how the response will be parsed. The connection and parsing classes are described in the module [Web.Classes](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Web/Classes.hs). Instances and parsing code for Telegram and VKontakte are in the corresponding folders [Web.Telegram](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Web/Telegram) and [Web.VK](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/Lib/Web/VK). 
