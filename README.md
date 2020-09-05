@@ -79,6 +79,46 @@ Not so easy for Vkontakte. You must have a user account first and then you need 
 
 2. Create community
 
+   <img src="readme%20images/VK_society1.jpg" width="500" >
+
+   <img src="readme%20images/VK_society2.jpg" width="500" >
+
+3. Change settings of the community
+   
+   - Open settings:
+   
+   <img src="readme%20images/VK_society3.jpg" width="500" >
+   
+   - Create token:
+   
+   <img src="readme%20images/VK_society4.jpg" width="500" >
+   
+   <img src="readme%20images/VK_society5.jpg" width="500" >
+   
+   This is where you can get token needed for connection:
+   
+   <img src="readme%20images/VK_society6.jpg" width="500" >
+   
+   - Enable api usage in society:
+   
+   <img src="readme%20images/VK_society7.jpg" width="500" >
+   
+   <img src="readme%20images/VK_society8.jpg" width="500" >
+   
+   - Enable messages in society:
+  
+   <img src="readme%20images/VK_society9.jpg" width="500" >
+   
+   - Enable messages for api:
+   
+   <img src="readme%20images/VK_society10.jpg" width="500" >
+   
+   This is where you can get group ID needed for connection:
+   
+   <img src="readme%20images/VK_society11.jpg" width="500" >
+   
+   In this exaple it is 198446362. Just the number without text.
+
 ## Config
 
 ```
