@@ -1,6 +1,6 @@
 # Telegram (and VKontakte) bot on haskell
 
-Simple bot made for testing out haskell. No multithreading or multicore. Can work with telegram or vkontakte one at a time.
+Simple bot made for testing out haskell. No multithreading or multicore. Can work with Telegram or VKontakte one at a time.
 
 ## Table of сontents
 - [Bot capabilities](https://github.com/KonstantinZsky/telegram-bot-on-haskell/blob/master/README.md#bot-capabilities)
