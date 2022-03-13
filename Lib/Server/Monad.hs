@@ -5,8 +5,8 @@ import Control.Monad.Trans.State
 import qualified Data.Text              as T
 import Control.Monad.IO.Class (MonadIO, liftIO) 
 import Control.Concurrent (threadDelay)
-import System.CPUTime (getCPUTime)
 
+import qualified Data.Time.Extended as Time
 import qualified Env as E
 import qualified Web.Types as W
 
@@ -15,8 +15,8 @@ class Monad m => MonadServer m where
     setUpdateID                 :: (Integer -> m ())
     getRepeatCount              :: m Integer
     setRepeatCount              :: (Integer -> m ())
-    getCpuTimestamp             :: m Integer
-    setCpuTimestamp             :: m () 
+    getSavedTimestamp           :: m Double
+    setSavedTimestamp           :: m () 
     getSupportDataString        :: m T.Text
     setSupportDataString        :: (T.Text -> m ())      
     getHelpMessage              :: m T.Text
@@ -31,8 +31,8 @@ instance E.HasData env m => MonadServer (ReaderT env m) where
     setUpdateID x = ReaderT $ \env -> E.setUpdateID env x
     getRepeatCount = ReaderT E.getRepeatCount
     setRepeatCount x = ReaderT $ \env -> E.setRepeatCount env x
-    getCpuTimestamp = ReaderT E.getCpuTimestamp
-    setCpuTimestamp = ReaderT E.setCpuTimestamp 
+    getSavedTimestamp = ReaderT E.getSavedTimestamp
+    setSavedTimestamp = ReaderT E.setSavedTimestamp 
     getSupportDataString = ReaderT E.getSupportDataString
     setSupportDataString x = ReaderT $ \env -> E.setSupportDataString env x 
     getHelpMessage = ReaderT E.getHelpMessage
@@ -44,8 +44,8 @@ instance E.HasData env m => MonadServer (ReaderT env m) where
 
 class Monad m => MonadTime m where
     timeout :: Int -> m ()
-    getCpuTime :: m Integer 
+    getTimestamp :: m Double 
 
 instance (MonadIO m, Monad m) => MonadTime (ReaderT env m) where
-    timeout = liftIO . threadDelay
-    getCpuTime = liftIO getCPUTime
+    timeout t = liftIO $ threadDelay t
+    getTimestamp = liftIO $ Time.getTimestamp

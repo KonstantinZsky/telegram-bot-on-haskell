@@ -12,5 +12,7 @@ import Web.Types
 import Testing.TestErrorThrow
 
 instance MonadError (State (TEnv mode a)) where 
-    catchLogRethrow = undefined -- will never be used
+    catchLogRethrow txt action = do
+        out <- action
+        return out
     errorThrow msg = return $ testErrorThrow msg

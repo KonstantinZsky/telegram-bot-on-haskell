@@ -68,16 +68,16 @@ sendMessages :: (Monad m, L.MonadLog m, S.MonadServer m, S.MonadTime m, W.MonadW
                     [(W.HashMapKey b, W.HashMapData)] -> m ()
 sendMessages packedMessages = do
     when (length packedMessages == 0) (L.info "Nothing to output")
-    cpuTime <- S.getCpuTime
-    sendMessagesCycle packedMessages $ cpuTime - secondsToCPU 1
+    cpuTime <- S.getTimestamp
+    sendMessagesCycle packedMessages $ cpuTime - 1
     return ()
 
 sendMessagesCycle :: (Monad m, S.MonadServer m, S.MonadTime m, W.MonadWeb m, W.OutputBotData m b) => 
-                        [(W.HashMapKey b, W.HashMapData)] -> Integer -> m ()
+                        [(W.HashMapKey b, W.HashMapData)] -> Double -> m ()
 sendMessagesCycle [] _ = return ()
 sendMessagesCycle xs tStamp = do
-    cpuTime <- S.getCpuTime
-    let timeToSleep = secondsToCPU 1 - (cpuTime - tStamp)
+    cpuTime <- S.getTimestamp
+    let timeToSleep = 1 - (cpuTime - tStamp)
     when (timeToSleep > 0) $ S.timeout $ cpuToMicro timeToSleep 
     freq <- S.getMaximumMessageFrequency
     let (now, next) = splitAt (fromEnum freq) xs

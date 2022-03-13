@@ -13,8 +13,8 @@ instance MonadServer (State (TEnv a b)) where
     setUpdateID upid = modify $ \env -> env {updateID = upid}
     getRepeatCount = get >>= (return . repeatCount)
     setRepeatCount rc = modify $ \env -> env {repeatCount = rc}
-    getCpuTimestamp = get >>= (return . cpuTimestamp)
-    setCpuTimestamp = return ()
+    getSavedTimestamp = get >>= (return . cpuTimestamp)
+    setSavedTimestamp = return ()
     getSupportDataString = get >>= (return . supportDataString)
     setSupportDataString ss = modify $ \env -> env {supportDataString = ss}
     getHelpMessage = get >>= (return . helpMessage)
@@ -29,4 +29,4 @@ addTestOutput msg = modify $ \env@(Env {testOutput = to}) -> env {testOutput = (
 
 instance Monad m => MonadTime (StateT env m) where -- used for testing
     timeout s = return ()
-    getCpuTime = return 0
+    getTimestamp = return 0

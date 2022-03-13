@@ -1,2 +1,125 @@
-2020-09-04 12:46:34.2399587 Debug: Response {responseStatus = Status {statusCode = 200, statusMessage = "OK"}, responseVersion = HTTP/1.1, responseHeaders = [("Server","kittenx"),("Date","Fri, 04 Sep 2020 09:46:33 GMT"),("Content-Type","application/json; charset=utf-8"),("Content-Length","180"),("Connection","keep-alive"),("X-Powered-By","PHP/3.26091"),("Set-Cookie","remixir=DELETED; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/; domain=.vk.com; secure; HttpOnly"),("Cache-control","no-store"),("X-Frame-Options","DENY"),("Content-Encoding","gzip"),("Strict-Transport-Security","max-age=86400")], responseBody = "{\"error\":{\"error_code\":5,\"error_msg\":\"User authorization failed: invalid session.\",\"request_params\":[{\"key\":\"group_id\",\"value\":\"198446362\"},{\"key\":\"v\",\"value\":\"5.120\"},{\"key\":\"method\",\"value\":\"groups.getLongPollServer\"},{\"key\":\"oauth\",\"value\":\"1\"}]}}", responseCookieJar = CJ {expose = [Cookie {cookie_name = "remixir", cookie_value = "DELETED", cookie_expiry_time = 3020-01-06 00:00:00 UTC, cookie_domain = "vk.com", cookie_path = "/", cookie_creation_time = 2020-09-04 09:46:34.2399587 UTC, cookie_last_access_time = 2020-09-04 09:46:34.2399587 UTC, cookie_persistent = False, cookie_host_only = False, cookie_secure_only = True, cookie_http_only = True}]}, responseClose' = ResponseClose}
-2020-09-04 12:46:34.2409604 Error: Cant get vkontakte long poll server credentials. Error while parsing server answer: Error in $: empty. Exiting program.
+2022-03-13 17:24:33.9658366 Debug: "{\"ok\":true,\"result\":[]}"
+2022-03-13 17:24:39.1005281 Debug: []
+2022-03-13 17:24:39.1005281 Info: Nothing to output
+2022-03-13 17:24:41.122836 Debug: []
+2022-03-13 17:24:41.122836 Info: Nothing to output
+2022-03-13 17:24:46.1457292 Debug: []
+2022-03-13 17:24:46.1457292 Info: Nothing to output
+2022-03-13 17:24:51.1576384 Debug: []
+2022-03-13 17:24:51.1576384 Info: Nothing to output
+2022-03-13 17:24:56.1540953 Debug: []
+2022-03-13 17:24:56.1540953 Info: Nothing to output
+2022-03-13 17:25:01.2306667 Debug: []
+2022-03-13 17:25:01.2306667 Info: Nothing to output
+2022-03-13 17:25:06.1581478 Debug: []
+2022-03-13 17:25:06.1591492 Info: Nothing to output
+2022-03-13 17:25:11.1567265 Debug: []
+2022-03-13 17:25:11.1567265 Info: Nothing to output
+2022-03-13 17:25:16.1582435 Debug: []
+2022-03-13 17:25:16.1592099 Info: Nothing to output
+2022-03-13 17:25:21.1627324 Debug: []
+2022-03-13 17:25:21.1627324 Info: Nothing to output
+2022-03-13 17:25:26.1612651 Debug: []
+2022-03-13 17:25:26.1612651 Info: Nothing to output
+2022-03-13 17:25:31.1627784 Debug: []
+2022-03-13 17:25:31.1627784 Info: Nothing to output
+2022-03-13 17:25:36.1663559 Debug: []
+2022-03-13 17:25:36.1663559 Info: Nothing to output
+2022-03-13 17:25:41.167831 Debug: []
+2022-03-13 17:25:41.167831 Info: Nothing to output
+2022-03-13 17:25:46.1673572 Debug: []
+2022-03-13 17:25:46.1673572 Info: Nothing to output
+2022-03-13 17:25:51.1622332 Debug: []
+2022-03-13 17:25:51.1622332 Info: Nothing to output
+2022-03-13 17:25:56.1749129 Debug: []
+2022-03-13 17:25:56.1749129 Info: Nothing to output
+2022-03-13 17:26:01.1756753 Debug: []
+2022-03-13 17:26:01.1756753 Info: Nothing to output
+2022-03-13 17:26:06.1987952 Debug: []
+2022-03-13 17:26:06.1997706 Info: Nothing to output
+2022-03-13 17:26:11.1935537 Debug: []
+2022-03-13 17:26:11.1935537 Info: Nothing to output
+2022-03-13 17:26:16.2109153 Debug: []
+2022-03-13 17:26:16.2109153 Info: Nothing to output
+2022-03-13 17:26:21.2276327 Debug: []
+2022-03-13 17:26:21.2276327 Info: Nothing to output
+2022-03-13 17:26:26.2447435 Debug: []
+2022-03-13 17:26:26.2447435 Info: Nothing to output
+2022-03-13 17:26:31.2620028 Debug: []
+2022-03-13 17:26:31.2620028 Info: Nothing to output
+2022-03-13 17:26:36.2777099 Debug: []
+2022-03-13 17:26:36.2777099 Info: Nothing to output
+2022-03-13 17:26:41.2964723 Debug: []
+2022-03-13 17:26:41.2964723 Info: Nothing to output
+2022-03-13 17:26:46.3122069 Debug: []
+2022-03-13 17:26:46.3122069 Info: Nothing to output
+2022-03-13 17:26:51.3308904 Debug: []
+2022-03-13 17:26:51.3308904 Info: Nothing to output
+2022-03-13 17:26:56.3471952 Debug: []
+2022-03-13 17:26:56.3471952 Info: Nothing to output
+2022-03-13 17:27:01.3646274 Debug: []
+2022-03-13 17:27:01.3646274 Info: Nothing to output
+2022-03-13 17:27:06.3894112 Debug: []
+2022-03-13 17:27:06.3894112 Info: Nothing to output
+2022-03-13 17:27:11.3679064 Debug: []
+2022-03-13 17:27:11.3679064 Info: Nothing to output
+2022-03-13 17:27:16.3696242 Debug: []
+2022-03-13 17:27:16.3696242 Info: Nothing to output
+2022-03-13 17:27:21.3731754 Debug: []
+2022-03-13 17:27:21.3731754 Info: Nothing to output
+2022-03-13 17:27:26.3681877 Debug: []
+2022-03-13 17:27:26.3691869 Info: Nothing to output
+2022-03-13 17:27:31.3727057 Debug: []
+2022-03-13 17:27:31.3727057 Info: Nothing to output
+2022-03-13 17:27:36.3732353 Debug: []
+2022-03-13 17:27:36.3732353 Info: Nothing to output
+2022-03-13 17:27:41.3742276 Debug: []
+2022-03-13 17:27:41.3742276 Info: Nothing to output
+2022-03-13 17:27:46.376479 Debug: []
+2022-03-13 17:27:46.376479 Info: Nothing to output
+2022-03-13 17:27:51.407853 Debug: []
+2022-03-13 17:27:51.407853 Info: Nothing to output
+2022-03-13 17:27:56.4254871 Debug: []
+2022-03-13 17:27:56.4264881 Info: Nothing to output
+2022-03-13 17:28:01.4290211 Debug: [BotAnswer (AnswerInfo "Echo bot, returns messages back to the user.") (TelegramSupportData 447114018)]
+2022-03-13 17:28:06.4292457 Debug: []
+2022-03-13 17:28:06.4292457 Info: Nothing to output
+2022-03-13 17:28:11.4299514 Debug: [BotAnswer (AnswerText "saedf") (TelegramSupportData 447114018)]
+2022-03-13 17:28:16.4396227 Debug: [BotAnswer (AnswerText "/repeat 3") (TelegramSupportData 447114018),BotAnswer (AnswerText "fsad") (TelegramSupportData 447114018)]
+2022-03-13 17:28:21.4309753 Debug: []
+2022-03-13 17:28:21.4309753 Info: Nothing to output
+2022-03-13 17:28:26.4325087 Debug: []
+2022-03-13 17:28:26.4334854 Info: Nothing to output
+2022-03-13 17:28:31.4427978 Debug: []
+2022-03-13 17:28:31.4427978 Info: Nothing to output
+2022-03-13 17:28:36.4443431 Debug: []
+2022-03-13 17:28:36.4443431 Info: Nothing to output
+2022-03-13 17:28:41.4679889 Debug: []
+2022-03-13 17:28:41.4679889 Info: Nothing to output
+2022-03-13 17:28:46.4798381 Debug: []
+2022-03-13 17:28:46.4798381 Info: Nothing to output
+2022-03-13 17:28:51.5004496 Debug: []
+2022-03-13 17:28:51.5004496 Info: Nothing to output
+2022-03-13 17:28:56.5160121 Debug: []
+2022-03-13 17:28:56.5160121 Info: Nothing to output
+2022-03-13 17:29:01.5253377 Debug: []
+2022-03-13 17:29:01.5253377 Info: Nothing to output
+2022-03-13 17:29:06.5473339 Debug: []
+2022-03-13 17:29:06.5473339 Info: Nothing to output
+2022-03-13 17:29:11.5608228 Debug: []
+2022-03-13 17:29:11.5608228 Info: Nothing to output
+2022-03-13 17:29:16.5627979 Debug: []
+2022-03-13 17:29:16.5627979 Info: Nothing to output
+2022-03-13 17:29:21.5644077 Debug: [BotAnswer AnswerButtons (TelegramSupportData 447114018)]
+2022-03-13 17:29:26.5674125 Debug: [BotAnswer (SetRepeatCount 4) (TelegramSupportData 447114018)]
+2022-03-13 17:29:26.5674125 Debug: Repeat count changed: 4. packOutput 1
+2022-03-13 17:29:26.5674125 Info: Nothing to output
+2022-03-13 17:29:31.5695682 Debug: []
+2022-03-13 17:29:31.5695682 Info: Nothing to output
+2022-03-13 17:29:36.5709715 Debug: [BotAnswer (AnswerText "sg") (TelegramSupportData 447114018)]
+2022-03-13 17:29:41.5705215 Debug: [BotAnswer (AnswerText "g") (TelegramSupportData 447114018)]
+2022-03-13 17:29:46.5704924 Debug: [BotAnswer (AnswerText "dfhfgjhfgj") (TelegramSupportData 447114018)]
+2022-03-13 17:29:51.5710109 Debug: []
+2022-03-13 17:29:51.5710109 Info: Nothing to output
+2022-03-13 17:29:56.5690436 Debug: []
+2022-03-13 17:29:56.5690436 Info: Nothing to output

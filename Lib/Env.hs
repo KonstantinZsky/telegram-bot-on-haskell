@@ -8,11 +8,11 @@ module Env
 
 import qualified Data.Text as T
 import Data.IORef
-import System.CPUTime (getCPUTime)
 import Prelude hiding (error)
 import qualified Network.Wreq.Session as Sess
 import qualified Data.HashTable.IO as H
 
+import qualified Data.Time.Extended as Time
 import qualified Web.Types as W
 import Logger.Verbosity
 import Config.Mode (Mode(..))
@@ -25,7 +25,7 @@ data Env mode = Env
     , verbosity                 :: !Verbosity
     , updateID                  :: !(IORef Integer)
     , repeatCount               :: !(IORef Integer)
-    , cpuTimestamp              :: !(IORef Integer)
+    , cpuTimestamp              :: !(IORef Double)
     , supportDataString         :: !(IORef T.Text)
     , helpMessage               :: !T.Text
     , repeateQuestion           :: !T.Text
@@ -48,8 +48,8 @@ class Monad m => HasData env m where
     setUpdateID                 :: env -> Integer -> m ()
     getRepeatCount              :: env -> m Integer
     setRepeatCount              :: env -> Integer -> m ()
-    getCpuTimestamp             :: env -> m Integer
-    setCpuTimestamp             :: env -> m ()
+    getSavedTimestamp           :: env -> m Double
+    setSavedTimestamp           :: env -> m ()
     getSupportDataString        :: env -> m T.Text
     setSupportDataString        :: env -> T.Text -> m ()
     getHelpMessage              :: env -> m T.Text
@@ -65,9 +65,9 @@ instance HasData (Env a) IO where
     setUpdateID                 = writeIORef . updateID
     getRepeatCount              = readIORef . repeatCount
     setRepeatCount              = writeIORef . repeatCount
-    getCpuTimestamp             = readIORef . cpuTimestamp
-    setCpuTimestamp env         = do
-        t <- getCPUTime
+    getSavedTimestamp           = readIORef . cpuTimestamp
+    setSavedTimestamp env       = do
+        t <- Time.getTimestamp
         writeIORef (cpuTimestamp env) t  
     getSupportDataString        = readIORef . supportDataString
     setSupportDataString        = writeIORef . supportDataString 

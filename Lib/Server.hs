@@ -21,15 +21,15 @@ runServer = do
     W.checkConnection
     pollTimeout <- S.getPollTimeoutMicroseconds
     forever $ do
-        timeStamp <- S.getCpuTimestamp
-        cTime <- S.getCpuTime
+        timeStamp <- S.getSavedTimestamp
+        cTime <- S.getTimestamp
         let timeToSleep = fromEnum pollTimeout - cpuToMicro (cTime - timeStamp)
         if (timeToSleep > 0)    then S.timeout timeToSleep
                                 else L.warning $ "Poll timeout (" <> (T.pack $ show $ pollTimeout) <> 
                                     " microseconds) was exceeded. Actual timeout was: " <> 
                                     (T.pack $ show $ cpuToMicro (cTime - timeStamp)) <> 
                                     " microseconds. Too many messages."
-        S.setCpuTimestamp
+        S.setSavedTimestamp
         cycle_step
 
 cycle_step :: (S.MonadServer m, W.MonadWeb m, L.MonadLog m, E.MonadError m, S.MonadTime m, Test.TestErrorThrow a,

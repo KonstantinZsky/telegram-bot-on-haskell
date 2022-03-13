@@ -6,10 +6,10 @@ import qualified Data.Text.IO       as T
 import qualified Data.HashTable.IO  as H
 import qualified Network.Wreq.Session as Sess
 import System.IO (hFlush)
-import System.CPUTime (getCPUTime)
 
 import qualified Config as C
 import qualified Env    as E   
+import qualified Data.Time.Extended as Time
 import Data.Time.Extended (getCurrentTime)
 import Control.Exception.Extends (catchLogRethrow)
 
@@ -27,7 +27,7 @@ initEnv handle C.Config { C.cMode = m
     rc_ref      <- IORef.newIORef rc
     sd          <- IORef.newIORef ""
     sess        <- Sess.newSession
-    ct          <- getCPUTime
+    ct          <- Time.getTimestamp
     timeStamp   <- IORef.newIORef $ ct
     return E.Env    { E.session                     = sess
                     , E.envLog                      =

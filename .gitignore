@@ -2,6 +2,7 @@
 .vscode/
 .history/
 config.cfg
+config1.cfg
 test.cfg
 log.txt
 *~

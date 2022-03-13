@@ -11,7 +11,7 @@ data TEnv mode a = Env
     { verbosity                 :: !Verbosity
     , updateID                  :: !Integer
     , repeatCount               :: !Integer
-    , cpuTimestamp              :: !Integer
+    , cpuTimestamp              :: !Double
     , supportDataString         :: !T.Text
     , helpMessage               :: !T.Text
     , repeateQuestion           :: !T.Text
